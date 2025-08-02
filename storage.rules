@@ -1,0 +1,78 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ユーザープロフィール画像
+    match /users/{userId}/profile/{fileName} {
+      // 自分のプロフィール画像のみアップロード・削除可能
+      allow read: if true; // プロフィール画像は公開
+      allow write, delete: if request.auth != null 
+        && request.auth.uid == userId
+        && validateImageFile(request.resource);
+    }
+
+    // スキル関連画像
+    match /skills/{skillId}/{fileName} {
+      // スキル画像は誰でも閲覧可能
+      allow read: if true;
+      
+      // スキルの教師のみアップロード・削除可能
+      allow write, delete: if request.auth != null
+        && validateImageFile(request.resource)
+        && isSkillOwner(skillId, request.auth.uid);
+    }
+
+    // メッセージ添付ファイル
+    match /messages/{conversationId}/{messageId}/{fileName} {
+      // 会話参加者のみアクセス可能
+      allow read, write, delete: if request.auth != null
+        && isConversationParticipant(conversationId, request.auth.uid)
+        && validateMessageFile(request.resource);
+    }
+
+    // 一時アップロードファイル（24時間で削除）
+    match /temp/{userId}/{fileName} {
+      allow read, write, delete: if request.auth != null 
+        && request.auth.uid == userId
+        && validateTempFile(request.resource);
+    }
+
+    // 管理者用ファイル
+    match /admin/{allPaths=**} {
+      allow read, write: if false; // 管理者権限の実装が必要
+    }
+
+    // バリデーション関数
+    function validateImageFile(resource) {
+      return resource != null
+        && resource.size < 5 * 1024 * 1024  // 5MB以下
+        && resource.contentType.matches('image/.*')
+        && resource.contentType in ['image/jpeg', 'image/png', 'image/webp'];
+    }
+
+    function validateMessageFile(resource) {
+      return resource != null
+        && resource.size < 10 * 1024 * 1024  // 10MB以下
+        && (resource.contentType.matches('image/.*') 
+            || resource.contentType.matches('application/pdf')
+            || resource.contentType.matches('text/.*'));
+    }
+
+    function validateTempFile(resource) {
+      return resource != null
+        && resource.size < 20 * 1024 * 1024  // 20MB以下
+        && resource.contentType != null;
+    }
+
+    // Firestore参照関数（実際の実装では外部関数として定義）
+    function isSkillOwner(skillId, userId) {
+      // 実装時にFirestore参照で確認
+      return true; // 仮実装
+    }
+
+    function isConversationParticipant(conversationId, userId) {
+      // 実装時にFirestore参照で確認
+      return true; // 仮実装
+    }
+  }
+}
