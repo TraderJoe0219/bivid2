@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    /* 高齢者向けに大きめのベースフォントサイズ */
+    font-size: 18px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-elder-bg text-elder-text;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.7;
+  }
+
+  /* フォーカス表示を強化 */
+  *:focus {
+    @apply outline-2 outline-offset-2 outline-elder-accent;
+  }
+
+  /* ボタンのデフォルトスタイル */
+  button {
+    @apply min-h-touch cursor-pointer;
+  }
+
+  /* リンクのデフォルトスタイル */
+  a {
+    @apply text-elder-accent hover:underline focus:underline;
+  }
+
+  /* 入力フィールドのデフォルトスタイル */
+  input, textarea, select {
+    @apply min-h-touch text-base;
+  }
+}
+
+@layer components {
+  /* 高齢者向けボタンスタイル */
+  .btn-elder {
+    @apply inline-flex items-center justify-center min-h-touch px-6 py-3 
+           text-base font-medium rounded-elder border-2 border-transparent
+           transition-all duration-200 ease-in-out
+           focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn-elder bg-elder-accent text-white hover:bg-blue-600 
+           focus:ring-elder-accent;
+  }
+
+  .btn-secondary {
+    @apply btn-elder bg-white text-elder-text border-gray-300 
+           hover:bg-gray-50 focus:ring-gray-500;
+  }
+
+  .btn-success {
+    @apply btn-elder bg-elder-success text-white hover:bg-green-600 
+           focus:ring-elder-success;
+  }
+
+  .btn-warning {
+    @apply btn-elder bg-elder-warning text-white hover:bg-orange-600 
+           focus:ring-elder-warning;
+  }
+
+  .btn-danger {
+    @apply btn-elder bg-elder-error text-white hover:bg-red-600 
+           focus:ring-elder-error;
+  }
+
+  /* カードスタイル */
+  .card-elder {
+    @apply bg-white rounded-elder shadow-md border border-gray-200 p-6;
+  }
+
+  /* 入力フィールドスタイル */
+  .input-elder {
+    @apply w-full min-h-touch px-4 py-3 text-base border border-gray-300 
+           rounded-elder focus:ring-2 focus:ring-elder-accent focus:border-elder-accent
+           placeholder-gray-500;
+  }
+
+  /* ナビゲーションスタイル */
+  .nav-elder {
+    @apply flex items-center space-x-6 text-lg;
+  }
+
+  .nav-elder a {
+    @apply px-4 py-2 rounded-elder hover:bg-gray-100 transition-colors;
+  }
+}
+
+@layer utilities {
+  /* 高齢者向けユーティリティクラス */
+  .text-elder-large {
+    @apply text-xl leading-relaxed;
+  }
+
+  .text-elder-xl {
+    @apply text-2xl leading-relaxed;
+  }
+
+  .spacing-elder {
+    @apply space-y-6;
+  }
+
+  .container-elder {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}

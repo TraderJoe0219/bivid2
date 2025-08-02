@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ユーザープロフィール
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null; // 他のユーザーのプロフィールは読み取り可能
+    }
+
+    // スキル
+    match /skills/{skillId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == resource.data.teacherId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.teacherId;
+    }
+
+    // 予約
+    match /bookings/{bookingId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid == resource.data.studentId || 
+         request.auth.uid == resource.data.teacherId);
+    }
+
+    // レビュー
+    match /reviews/{reviewId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == resource.data.reviewerId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.reviewerId;
+    }
+
+    // メッセージ
+    match /conversations/{conversationId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid in resource.data.participants;
+      
+      match /messages/{messageId} {
+        allow read, write: if request.auth != null && 
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+      }
+    }
+
+    // 管理者のみアクセス可能
+    match /admin/{document=**} {
+      allow read, write: if false; // 管理者権限の実装が必要
+    }
+  }
+}
