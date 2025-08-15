@@ -15,8 +15,10 @@ interface GoogleMapProps {
   }>;
   onMapClick?: (event: google.maps.MapMouseEvent) => void;
   onMarkerClick?: (markerId: string) => void;
+  onMapLoad?: (map: google.maps.Map) => void;
   className?: string;
   height?: string;
+  children?: React.ReactNode;
 }
 
 export const GoogleMap: React.FC<GoogleMapProps> = ({
@@ -25,8 +27,10 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
   markers = [],
   onMapClick,
   onMarkerClick,
+  onMapLoad,
   className = '',
-  height = '400px'
+  height = '400px',
+  children
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
@@ -60,13 +64,18 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
         map.addListener('click', onMapClick);
       }
 
+      // マップロードコールバック
+      if (onMapLoad) {
+        onMapLoad(map);
+      }
+
       setIsLoading(false);
     } catch (err) {
       console.error('地図の初期化に失敗しました:', err);
       setError('地図を読み込めませんでした');
       setIsLoading(false);
     }
-  }, [center, zoom, onMapClick]);
+  }, [center, zoom, onMapClick, onMapLoad]);
 
   // マーカーの更新
   const updateMarkers = useCallback(() => {
@@ -84,13 +93,14 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
         title: markerData.title,
         icon: {
           url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-            <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16 0C7.163 0 0 7.163 0 16c0 16 16 24 16 24s16-8 16-24C32 7.163 24.837 0 16 0z" fill="#E85D04"/>
-              <circle cx="16" cy="16" r="8" fill="white"/>
+            <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 0C8.954 0 0 8.954 0 20c0 20 20 30 20 30s20-10 20-30C40 8.954 31.046 0 20 0z" fill="#FF4444" stroke="#FFFFFF" stroke-width="2"/>
+              <circle cx="20" cy="20" r="10" fill="white"/>
+              <circle cx="20" cy="20" r="6" fill="#FF4444"/>
             </svg>
           `)}`,
-          scaledSize: new google.maps.Size(32, 40),
-          anchor: new google.maps.Point(16, 40)
+          scaledSize: new google.maps.Size(40, 50),
+          anchor: new google.maps.Point(20, 50)
         }
       });
 
@@ -203,6 +213,8 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
         className="w-full h-full rounded-lg"
         style={{ minHeight: height }}
       />
+      {/* 子コンポーネント（マーカーなど）をレンダリング */}
+      {children}
     </div>
   );
 };
