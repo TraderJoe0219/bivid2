@@ -131,7 +131,7 @@ export function AuthForm({ mode, onSubmit, loading, error }: AuthFormProps) {
             id="password"
             type={showPassword ? 'text' : 'password'}
             {...register('password')}
-            placeholder={isSignup ? "8文字以上（大文字・小文字・数字を含む）" : "パスワードを入力"}
+            placeholder={isSignup ? "6文字以上で入力してください" : "パスワードを入力"}
             className={`pl-14 pr-14 h-14 text-lg ${errors.password ? 'border-red-300' : ''}`}
             disabled={loading}
           />

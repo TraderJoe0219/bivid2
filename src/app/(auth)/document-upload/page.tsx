@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import { DocumentUpload } from '@/components/auth/DocumentUpload'
 import { Loading } from '@/components/Loading'
+import { saveDocumentInfo } from '@/lib/auth'
 import type { DocumentUploadFormData } from '@/lib/validations/auth'
 
 export default function DocumentUploadPage() {
@@ -42,11 +43,8 @@ export default function DocumentUploadPage() {
         updatedAt: new Date()
       }
 
-      // TODO: Firestoreへの保存
-      // await updateDoc(doc(db, 'users', user.uid), documentData)
-      
-      // 一時的なモック処理
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Firestoreへの身分証明書情報保存
+      await saveDocumentInfo(user.uid, data.documentType, documentURL)
 
       setSuccess('身分証明書を提出しました。確認までお時間をいただきます。')
 

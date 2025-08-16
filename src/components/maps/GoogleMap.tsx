@@ -48,11 +48,20 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
       setIsLoading(true);
       setError(null);
 
+      // APIキーのチェック
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        throw new Error('Google Maps APIキーが設定されていません');
+      }
+
+      // Google Maps APIの読み込み
       await mapsLoader.load();
 
+      // マップオプションの取得
       const mapOptions = getMapOptions(center);
       mapOptions.zoom = zoom;
 
+      // 地図インスタンスの作成
       const map = new google.maps.Map(mapRef.current, mapOptions);
       mapInstanceRef.current = map;
 
@@ -64,15 +73,29 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
         map.addListener('click', onMapClick);
       }
 
-      // マップロードコールバック
-      if (onMapLoad) {
-        onMapLoad(map);
-      }
+      // マップ読み込み完了イベント
+      google.maps.event.addListenerOnce(map, 'idle', () => {
+        setIsLoading(false);
+        if (onMapLoad) {
+          onMapLoad(map);
+        }
+      });
 
-      setIsLoading(false);
     } catch (err) {
       console.error('地図の初期化に失敗しました:', err);
-      setError('地図を読み込めませんでした');
+      let errorMessage = '地図を読み込めませんでした';
+      
+      if (err instanceof Error) {
+        if (err.message.includes('APIキー')) {
+          errorMessage = 'Google Maps APIの設定に問題があります';
+        } else if (err.message.includes('quota')) {
+          errorMessage = 'Google Maps APIの利用制限に達しています';
+        } else if (err.message.includes('network')) {
+          errorMessage = 'ネットワークエラーが発生しました';
+        }
+      }
+      
+      setError(errorMessage);
       setIsLoading(false);
     }
   }, [center, zoom, onMapClick, onMapLoad]);

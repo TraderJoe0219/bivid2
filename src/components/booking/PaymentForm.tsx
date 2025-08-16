@@ -28,6 +28,9 @@ interface PaymentFormProps {
   currency: string;
   paymentMethod: PaymentMethod;
   onPaymentMethodChange: (method: PaymentMethod) => void;
+  skillId?: string;
+  participantCount?: number;
+  contactEmail?: string;
   onPaymentSuccess: (paymentIntentId: string) => void;
   onPaymentError: (error: string) => void;
   disabled?: boolean;
@@ -65,9 +68,10 @@ function StripePaymentForm({
           currency,
           bookingId,
           metadata: {
-            activityId: 'temp', // TODO: 実際のactivityIdを渡す
-            participantCount: 1, // TODO: 実際の参加人数を渡す
-            contactEmail: 'temp@example.com', // TODO: 実際のメールアドレスを渡す
+            skillId: skillId || '',
+            participantCount: participantCount.toString(),
+            contactEmail: contactEmail || '',
+            bookingId,
           },
         });
         setClientSecret(response.clientSecret);
@@ -192,6 +196,9 @@ export function PaymentForm({
   onPaymentSuccess,
   onPaymentError,
   disabled = false,
+  skillId,
+  participantCount = 1,
+  contactEmail,
 }: PaymentFormProps) {
   const [showSuccess, setShowSuccess] = useState(false);
 

@@ -28,8 +28,238 @@ import { Loading } from '@/components/Loading'
 
 // モックデータ - 実際の実装ではAPIから取得
 const getMockSkill = (id: string): Skill | null => {
-  // TODO: 実際のAPI呼び出しに置き換え
-  return null
+  // サンプルスキルデータ
+  const sampleSkills: Record<string, Skill> = {
+    '1': {
+      id: '1',
+      title: '初心者向けお料理教室',
+      shortDescription: '包丁の持ち方から始める、お料理の基礎を楽しく学べます',
+      description: `お料理が初めての方でも安心して参加いただける、基礎的なお料理教室です。
+
+包丁の持ち方から始まり、食材の切り方、火の通し方など、お料理の基本的なテクニックを丁寧にお教えします。
+
+毎回異なるメニューを作りながら、自然とお料理のスキルが身につきます。作った料理はその場でお召し上がりいただけるので、美味しく楽しく学べます。
+
+アットホームな雰囲気で、他の参加者の方々と交流しながら、お料理の楽しさを味わってください。`,
+      category: 'cooking',
+      difficulty: 'beginner',
+      pricing: {
+        amount: 3500,
+        currency: 'JPY',
+        unit: '回'
+      },
+      duration: {
+        typical: 120,
+        minimum: 90,
+        maximum: 150
+      },
+      capacity: {
+        maxStudents: 6,
+        currentBookings: 2
+      },
+      location: {
+        type: 'offline',
+        address: '東京都世田谷区三軒茶屋',
+        coordinates: {
+          lat: 35.6434,
+          lng: 139.6690
+        }
+      },
+      ageRange: {
+        min: 50,
+        max: 80,
+        description: '50歳以上推奨'
+      },
+      teacher: {
+        id: 'teacher1',
+        name: '田中 花子',
+        photoURL: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
+        bio: `料理歴30年、元料理教室講師です。
+特に家庭料理を得意としており、シニアの方々に分かりやすく、楽しく料理を教えることを心がけています。
+
+これまで500名以上の生徒さんにお料理を教えてきました。お料理を通じて、生活に彩りと健康をお届けしたいと思っています。`,
+        location: '世田谷区',
+        teachingExperience: 8,
+        specialties: ['家庭料理', '和食', '健康料理'],
+        languages: ['日本語'],
+        rating: {
+          average: 4.8,
+          count: 142
+        },
+        verificationStatus: {
+          isEmailVerified: true,
+          isPhoneVerified: true,
+          isDocumentVerified: true
+        }
+      },
+      images: [
+        'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800',
+        'https://images.unsplash.com/photo-1556908636-6d5bf8dd0a68?w=800',
+        'https://images.unsplash.com/photo-1556909010-4e85bc21cd8c?w=800'
+      ],
+      rating: {
+        average: 4.7,
+        count: 28,
+        distribution: { 5: 18, 4: 8, 3: 2, 2: 0, 1: 0 }
+      },
+      reviews: [
+        {
+          id: 'review1',
+          student: {
+            name: '山田 太郎',
+            photoURL: null
+          },
+          rating: 5,
+          title: '丁寧な指導で安心',
+          comment: '全くの初心者でしたが、田中先生が丁寧に教えてくださり、美味しい料理を作ることができました。他の参加者の方々とも楽しく交流できて、とても良い時間でした。',
+          pros: ['分かりやすい説明', '丁寧な指導', 'アットホームな雰囲気'],
+          cons: [],
+          createdAt: new Date('2024-01-15'),
+          helpfulCount: 5,
+          wouldRecommend: true
+        },
+        {
+          id: 'review2',
+          student: {
+            name: '佐藤 美子',
+            photoURL: 'https://images.unsplash.com/photo-1494790108755-2616b612b5c2?w=400'
+          },
+          rating: 5,
+          title: '料理が楽しくなりました',
+          comment: '包丁の持ち方から教えていただき、基本からしっかり学べました。毎回違うメニューで飽きることなく、料理の幅が広がりました。',
+          pros: ['基礎から学べる', '毎回違うメニュー', '美味しい'],
+          cons: [],
+          createdAt: new Date('2024-01-10'),
+          helpfulCount: 3,
+          wouldRecommend: true
+        }
+      ],
+      prerequisites: [
+        'エプロンと三角巾をお持ちください',
+        '手洗い・消毒にご協力ください',
+        '食物アレルギーがある場合は事前にお知らせください'
+      ],
+      materials: [
+        'エプロン',
+        '三角巾',
+        'ハンドタオル'
+      ],
+      tags: ['初心者歓迎', '基礎から学べる', '少人数制', '楽しい'],
+      statistics: {
+        bookingCount: 156,
+        favoriteCount: 42,
+        viewCount: 1248
+      },
+      isAvailableForBooking: true,
+      createdAt: new Date('2023-12-01'),
+      updatedAt: new Date('2024-01-15')
+    },
+    '2': {
+      id: '2',
+      title: 'ベランダでできる簡単ガーデニング',
+      shortDescription: '限られたスペースでも楽しめる、シニア向けガーデニング講座',
+      description: `マンションのベランダや小さなお庭でも楽しめるガーデニングを教えます。
+
+シニアの方でも無理なく続けられる、簡単で楽しいガーデニングの方法をお教えします。季節の花や野菜を育てて、生活に彩りを加えませんか？
+
+プランターを使った栽培方法から、水やりのコツ、肥料の与え方まで、基本的なことから丁寧にお教えします。`,
+      category: 'gardening',
+      difficulty: 'beginner',
+      pricing: {
+        amount: 2500,
+        currency: 'JPY',
+        unit: '回'
+      },
+      duration: {
+        typical: 90,
+        minimum: 60,
+        maximum: 120
+      },
+      capacity: {
+        maxStudents: 4,
+        currentBookings: 1
+      },
+      location: {
+        type: 'offline',
+        address: '神奈川県川崎市多摩区',
+        coordinates: {
+          lat: 35.6221,
+          lng: 139.5463
+        }
+      },
+      ageRange: {
+        min: 60,
+        max: 85,
+        description: '60歳以上推奨'
+      },
+      teacher: {
+        id: 'teacher2',
+        name: '鈴木 一郎',
+        photoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400',
+        bio: `ガーデニング歴20年、園芸療法士の資格を持っています。
+小さなスペースでも楽しめるガーデニングを通じて、シニアの方々の生活に潤いをお届けしたいと思っています。`,
+        location: '川崎市',
+        teachingExperience: 5,
+        specialties: ['ベランダガーデニング', '野菜栽培', '園芸療法'],
+        languages: ['日本語'],
+        rating: {
+          average: 4.6,
+          count: 87
+        },
+        verificationStatus: {
+          isEmailVerified: true,
+          isPhoneVerified: true,
+          isDocumentVerified: true
+        }
+      },
+      images: [
+        'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800',
+        'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800'
+      ],
+      rating: {
+        average: 4.6,
+        count: 15,
+        distribution: { 5: 9, 4: 5, 3: 1, 2: 0, 1: 0 }
+      },
+      reviews: [
+        {
+          id: 'review3',
+          student: {
+            name: '高橋 良子',
+            photoURL: null
+          },
+          rating: 5,
+          title: 'ベランダが生き生きとしました',
+          comment: '狭いベランダでも、こんなにたくさんの植物が育てられるとは思いませんでした。先生の指導のおかげで、毎日水やりが楽しみになりました。',
+          pros: ['実践的なアドバイス', '親切な指導'],
+          cons: [],
+          createdAt: new Date('2024-01-12'),
+          helpfulCount: 4,
+          wouldRecommend: true
+        }
+      ],
+      prerequisites: [
+        '汚れても良い服装でお越しください',
+        '軍手をお持ちください'
+      ],
+      materials: [
+        '軍手',
+        'タオル',
+        '水分補給用の飲み物'
+      ],
+      tags: ['初心者歓迎', 'ベランダ', '療養効果', '少人数'],
+      statistics: {
+        bookingCount: 89,
+        favoriteCount: 23,
+        viewCount: 756
+      },
+      isAvailableForBooking: true,
+      createdAt: new Date('2023-11-15'),
+      updatedAt: new Date('2024-01-12')
+    }
+  }
+  
+  return sampleSkills[id] || null
 }
 
 export default function SkillDetailPage() {
@@ -108,12 +338,14 @@ export default function SkillDetailPage() {
 
   // 予約処理
   const handleBooking = () => {
-    setShowBookingModal(true)
+    // 予約ページに遷移
+    router.push(`/skills/${skillId}/booking`)
   }
 
   // 相談処理
   const handleContact = () => {
-    setShowContactModal(true)
+    // メッセージページに遷移
+    router.push('/messages')
   }
 
   if (loading) {

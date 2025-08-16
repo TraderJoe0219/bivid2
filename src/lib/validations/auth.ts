@@ -63,17 +63,11 @@ export const emailSchema = z
   .email('正しいメールアドレスを入力してください')
   .max(100, 'メールアドレスは100文字以内で入力してください')
 
-// パスワードスキーマ
+// パスワードスキーマ（要件を緩和）
 export const passwordSchema = z
   .string()
-  .min(8, 'パスワードは8文字以上で入力してください')
+  .min(6, 'パスワードは6文字以上で入力してください')
   .max(128, 'パスワードは128文字以内で入力してください')
-  .refine((password) => {
-    const validation = validatePasswordStrength(password)
-    return validation.isValid
-  }, {
-    message: 'パスワードは大文字、小文字、数字を含む8文字以上で入力してください'
-  })
 
 // 電話番号スキーマ
 export const phoneNumberSchema = z
@@ -144,7 +138,7 @@ export const profileSetupSchema = z.object({
       return age >= 18 && age <= 120
     }, '18歳以上120歳以下で入力してください'),
   gender: z
-    .enum(['male', 'female', 'other', ''], {
+    .enum(['male', 'female', 'other'], {
       errorMap: () => ({ message: '性別を選択してください' })
     }),
   prefecture: z
@@ -156,13 +150,23 @@ export const profileSetupSchema = z.object({
     .max(50, '市区町村は50文字以内で入力してください'),
   area: z
     .string()
-    .max(100, '町名・番地は100文字以内で入力してください'),
+    .max(100, '町名・番地は100文字以内で入力してください')
+    .optional(),
   postalCode: z
     .string()
     .regex(postalCodeRegex, '郵便番号は「123-4567」の形式で入力してください'),
   bio: z
     .string()
     .max(500, '自己紹介は500文字以内で入力してください')
+    .optional(),
+  profilePhoto: z
+    .instanceof(File)
+    .refine((file) => file.size <= 5 * 1024 * 1024, 'ファイルサイズは5MB以下にしてください')
+    .refine(
+      (file) => ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type),
+      'JPEG、PNGファイルのみアップロード可能です'
+    )
+    .optional()
 })
 
 // 身分証明書アップロードスキーマ

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import { ProfileSetupForm } from '@/components/auth/ProfileSetupForm'
 import { Loading } from '@/components/Loading'
+import { updateUserProfile } from '@/lib/auth'
 import type { ProfileSetupFormData } from '@/lib/validations/auth'
 
 export default function ProfileSetupPage() {
@@ -59,11 +60,8 @@ export default function ProfileSetupPage() {
         updatedAt: new Date()
       }
 
-      // TODO: Firestoreへの保存
-      // await updateDoc(doc(db, 'users', user.uid), profileData)
-      
-      // 一時的なモック処理
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Firestoreへの保存
+      await updateUserProfile(user.uid, profileData)
 
       setSuccess('プロフィール情報を保存しました！')
 

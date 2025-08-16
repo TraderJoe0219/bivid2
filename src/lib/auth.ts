@@ -13,6 +13,7 @@ import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from './firebase'
 import type { UserProfile } from '@/types'
 import type { UserProfile as ExtendedUserProfile, EmergencyContact } from '@/types/auth'
+import { isDevelopment, mockSignUpWithEmail, mockSignInWithEmail, mockSignInWithGoogle, mockSignOut } from './mockAuth'
 
 // Google認証プロバイダー
 const googleProvider = new GoogleAuthProvider()
@@ -22,17 +23,21 @@ googleProvider.setCustomParameters({
 
 // エラーメッセージの日本語化
 export const getAuthErrorMessage = (error: AuthError): string => {
+  console.error('Firebase Auth Error:', error.code, error.message)
+  
   switch (error.code) {
     case 'auth/user-not-found':
       return 'このメールアドレスは登録されていません。'
     case 'auth/wrong-password':
       return 'パスワードが正しくありません。'
     case 'auth/email-already-in-use':
-      return 'このメールアドレスは既に使用されています。'
+      return 'このメールアドレスは既に使用されています。別のメールアドレスをお試しください。'
     case 'auth/weak-password':
       return 'パスワードは6文字以上で入力してください。'
     case 'auth/invalid-email':
       return 'メールアドレスの形式が正しくありません。'
+    case 'auth/invalid-credential':
+      return 'メールアドレスまたはパスワードが正しくありません。'
     case 'auth/too-many-requests':
       return 'しばらく時間をおいてから再度お試しください。'
     case 'auth/network-request-failed':
@@ -41,13 +46,26 @@ export const getAuthErrorMessage = (error: AuthError): string => {
       return 'ログインがキャンセルされました。'
     case 'auth/popup-blocked':
       return 'ポップアップがブロックされました。ブラウザの設定を確認してください。'
+    case 'auth/missing-password':
+      return 'パスワードを入力してください。'
+    case 'auth/missing-email':
+      return 'メールアドレスを入力してください。'
+    case 'auth/operation-not-allowed':
+      return 'この認証方法は無効になっています。管理者にお問い合わせください。'
+    case 'auth/user-disabled':
+      return 'このアカウントは無効になっています。'
     default:
-      return 'エラーが発生しました。しばらく時間をおいてから再度お試しください。'
+      return `認証エラーが発生しました。(${error.code}) 問題が続く場合はサポートにお問い合わせください。`
   }
 }
 
 // メール/パスワードでログイン
 export const signInWithEmail = async (email: string, password: string) => {
+  // 開発環境ではモック認証を使用
+  if (isDevelopment) {
+    return await mockSignInWithEmail(email, password)
+  }
+  
   try {
     const result = await signInWithEmailAndPassword(auth, email, password)
     return { user: result.user, error: null }
@@ -62,23 +80,40 @@ export const signUpWithEmail = async (
   password: string,
   displayName: string
 ) => {
+  // 開発環境ではモック認証を使用
+  if (isDevelopment) {
+    return await mockSignUpWithEmail(email, password, displayName)
+  }
+  
   try {
+    console.log('新規登録開始:', { email, displayName })
+    
+    // Firebase Authでユーザー作成
     const result = await createUserWithEmailAndPassword(auth, email, password)
+    console.log('Firebase Auth成功:', result.user.uid)
     
     // プロフィールを更新
     await updateProfile(result.user, { displayName })
+    console.log('プロフィール更新成功')
     
     // Firestoreにユーザープロフィールを作成
     await createUserProfile(result.user, { displayName })
+    console.log('Firestoreプロフィール作成成功')
     
     return { user: result.user, error: null }
   } catch (error) {
+    console.error('新規登録エラー:', error)
     return { user: null, error: getAuthErrorMessage(error as AuthError) }
   }
 }
 
 // Googleでログイン
 export const signInWithGoogle = async () => {
+  // 開発環境ではモック認証を使用
+  if (isDevelopment) {
+    return await mockSignInWithGoogle()
+  }
+  
   try {
     const result = await signInWithPopup(auth, googleProvider)
     
@@ -96,6 +131,11 @@ export const signInWithGoogle = async () => {
 
 // ログアウト
 export const signOutUser = async () => {
+  // 開発環境ではモック認証を使用
+  if (isDevelopment) {
+    return await mockSignOut()
+  }
+  
   try {
     await signOut(auth)
     return { error: null }
@@ -122,43 +162,51 @@ export const createUserProfile = async (
   user: User,
   additionalData?: { displayName?: string }
 ) => {
-  const userProfile: Partial<UserProfile> = {
-    id: user.uid,
-    email: user.email!,
-    displayName: additionalData?.displayName || user.displayName || '',
-    photoURL: user.photoURL,
-    phoneNumber: user.phoneNumber,
-    bio: '',
-    location: {
-      prefecture: '',
-      city: '',
-      area: '',
-    },
-    teachingSkills: [],
-    learningInterests: [],
-    rating: {
-      average: 0,
-      count: 0,
-      asTeacher: 0,
-      asStudent: 0,
-    },
-    preferences: {
-      isOnlineAvailable: false,
-      maxTravelDistance: 10,
-      preferredTimeSlots: [],
-      notifications: {
-        email: true,
-        push: true,
+  try {
+    console.log('Firestoreプロフィール作成開始:', user.uid)
+    
+    const userProfile: Partial<UserProfile> = {
+      id: user.uid,
+      email: user.email!,
+      displayName: additionalData?.displayName || user.displayName || '',
+      photoURL: user.photoURL,
+      phoneNumber: user.phoneNumber,
+      bio: '',
+      location: {
+        prefecture: '',
+        city: '',
+        area: '',
       },
-    },
-    isActive: true,
-    lastLoginAt: serverTimestamp(),
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  }
+      teachingSkills: [],
+      learningInterests: [],
+      rating: {
+        average: 0,
+        count: 0,
+        asTeacher: 0,
+        asStudent: 0,
+      },
+      preferences: {
+        isOnlineAvailable: false,
+        maxTravelDistance: 10,
+        preferredTimeSlots: [],
+        notifications: {
+          email: true,
+          push: true,
+        },
+      },
+      isActive: true,
+      lastLoginAt: serverTimestamp(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    }
 
-  await setDoc(doc(db, 'users', user.uid), userProfile)
-  return userProfile
+    await setDoc(doc(db, 'users', user.uid), userProfile)
+    console.log('Firestoreプロフィール作成完了')
+    return userProfile
+  } catch (error) {
+    console.error('Firestoreプロフィール作成エラー:', error)
+    throw error
+  }
 }
 
 // ユーザープロフィールを取得

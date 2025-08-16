@@ -13,6 +13,12 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 }
 
+// 設定確認
+console.log('Firebase Config:', {
+  ...firebaseConfig,
+  apiKey: firebaseConfig.apiKey ? '[設定済み]' : '[未設定]'
+})
+
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
 

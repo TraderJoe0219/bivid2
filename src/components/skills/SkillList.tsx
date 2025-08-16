@@ -18,6 +18,7 @@ import SkillCard from './SkillCard'
 import AdvancedFilters from '@/components/search/AdvancedFilters'
 import { useSkillSearch } from '@/hooks/useSkillSearch'
 import { Skill, SkillSearchParams } from '@/types/skill'
+import { useAuthStore } from '@/store/authStore'
 import { SORT_OPTIONS } from '@/lib/validations/search'
 
 interface SkillListProps {
@@ -168,9 +169,30 @@ export default function SkillList({
   }, [])
 
   // 相談クリック
-  const handleContactClick = useCallback((skill: Skill) => {
-    // TODO: 相談・メッセージ機能
-    console.log('Contact clicked for skill:', skill.id)
+  const handleContactClick = useCallback(async (skill: Skill) => {
+    try {
+      // ログインチェック
+      const { user } = useAuthStore.getState()
+      if (!user) {
+        alert('メッセージを送るにはログインが必要です')
+        return
+      }
+      
+      if (user.uid === skill.teacherId) {
+        alert('自分のスキルにはメッセージを送れません')
+        return
+      }
+
+      // メッセージページに遷移するか、会話を開始
+      const initialMessage = `${skill.title}について質問があります。`
+      
+      // 実際の実装では react-router や Next.js router を使用
+      const messageUrl = `/messages?teacherId=${skill.teacherId}&skillId=${skill.id}&message=${encodeURIComponent(initialMessage)}`
+      window.open(messageUrl, '_blank')
+    } catch (error) {
+      console.error('Failed to start contact:', error)
+      alert('メッセージの開始に失敗しました')
+    }
   }, [])
 
   // 共有クリック

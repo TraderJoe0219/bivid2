@@ -99,31 +99,131 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 人気のスキルカテゴリ */}
+        {/* おすすめスキル */}
         <section className="section-spacing bg-elder-bg-primary">
           <div className="container-elder">
             <h2 className="text-heading text-center text-elder-text-primary mb-16">
-              人気のスキルカテゴリ
+              おすすめのスキル
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              <Link href="/skills/1" className="card-interactive group">
+                <div className="aspect-video relative overflow-hidden rounded-lg mb-4">
+                  <img
+                    src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800"
+                    alt="初心者向けお料理教室"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 left-3 bg-elder-brand-primary text-white px-3 py-1 rounded-full text-sm font-medium">
+                    料理
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-elder-text-primary mb-2 group-hover:text-elder-interactive-primary transition-colors">
+                    初心者向けお料理教室
+                  </h3>
+                  <p className="text-elder-text-secondary mb-3">
+                    包丁の持ち方から始める、お料理の基礎を楽しく学べます
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 text-sm text-elder-text-muted">
+                      <span>⭐ 4.7 (28件)</span>
+                      <span>👥 田中花子先生</span>
+                    </div>
+                    <span className="text-lg font-semibold text-elder-interactive-primary">
+                      ¥3,500
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/skills/2" className="card-interactive group">
+                <div className="aspect-video relative overflow-hidden rounded-lg mb-4">
+                  <img
+                    src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800"
+                    alt="ベランダでできる簡単ガーデニング"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 left-3 bg-elder-success text-white px-3 py-1 rounded-full text-sm font-medium">
+                    園芸
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-elder-text-primary mb-2 group-hover:text-elder-interactive-primary transition-colors">
+                    ベランダでできる簡単ガーデニング
+                  </h3>
+                  <p className="text-elder-text-secondary mb-3">
+                    限られたスペースでも楽しめる、シニア向けガーデニング講座
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 text-sm text-elder-text-muted">
+                      <span>⭐ 4.6 (15件)</span>
+                      <span>👥 鈴木一郎先生</span>
+                    </div>
+                    <span className="text-lg font-semibold text-elder-interactive-primary">
+                      ¥2,500
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/map" className="card-interactive group bg-gradient-to-br from-elder-brand-primary to-elder-interactive-primary text-white">
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">
+                    地図でスキルを探す
+                  </h3>
+                  <p className="text-white/90 mb-4">
+                    お住まいの近くで開催されているスキル講座を地図で簡単に見つけられます
+                  </p>
+                  <div className="flex items-center justify-center space-x-2 text-white/90">
+                    <span>マップを開く</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            <div className="text-center">
+              <Link 
+                href="/skills/search"
+                className="btn-secondary text-lg px-8 py-4 min-h-touch-xl gap-2"
+              >
+                <span>すべてのスキルを見る</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* 人気のスキルカテゴリ */}
+        <section className="section-spacing bg-elder-bg-secondary">
+          <div className="container-elder">
+            <h2 className="text-heading text-center text-elder-text-primary mb-16">
+              カテゴリから探す
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                '料理・お菓子作り',
-                '園芸・ガーデニング',
-                '手芸・裁縫',
-                '楽器演奏',
-                'パソコン・スマホ',
-                '語学',
-                '書道・絵画',
-                '健康・体操'
+                { name: '料理・お菓子作り', emoji: '🍳', count: 45 },
+                { name: '園芸・ガーデニング', emoji: '🌱', count: 32 },
+                { name: '手芸・裁縫', emoji: '🧵', count: 28 },
+                { name: '楽器演奏', emoji: '🎵', count: 24 },
+                { name: 'パソコン・スマホ', emoji: '💻', count: 19 },
+                { name: '語学', emoji: '🗣️', count: 15 },
+                { name: '書道・絵画', emoji: '🎨', count: 21 },
+                { name: '健康・体操', emoji: '🏃‍♀️', count: 18 }
               ].map((category) => (
                 <Link
-                  key={category}
-                  href={`/skills/search?category=${encodeURIComponent(category)}`}
-                  className="card-interactive text-center group p-8"
+                  key={category.name}
+                  href={`/skills/search?category=${encodeURIComponent(category.name)}`}
+                  className="card-interactive text-center group p-6"
                 >
-                  <span className="text-lg font-semibold text-elder-text-primary group-hover:text-elder-interactive-primary transition-colors">
-                    {category}
+                  <div className="text-4xl mb-3">{category.emoji}</div>
+                  <span className="text-lg font-semibold text-elder-text-primary group-hover:text-elder-interactive-primary transition-colors block mb-2">
+                    {category.name}
                   </span>
+                  <span className="text-sm text-elder-text-muted">{category.count}件のスキル</span>
                   <ArrowRight className="w-5 h-5 mx-auto mt-3 text-elder-text-muted group-hover:text-elder-interactive-primary group-hover:translate-x-1 transition-all" />
                 </Link>
               ))}

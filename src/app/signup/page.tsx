@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { signUpWithEmail, signInWithGoogle } from '@/lib/auth'
@@ -16,27 +16,41 @@ export default function SignupPage() {
   const { user } = useAuthStore()
 
   // 既にログイン済みの場合はホームにリダイレクト
+  React.useEffect(() => {
+    if (user) {
+      router.push('/')
+    }
+  }, [user, router])
+
   if (user) {
-    router.push('/')
     return <Loading />
   }
 
   const handleEmailSignup = async (data: AuthFormData) => {
+    console.log('新規登録フォーム送信:', data)
     setLoading(true)
     setError('')
 
-    const { user, error: signupError } = await signUpWithEmail(
-      data.email,
-      data.password,
-      data.displayName || ''
-    )
-    
-    setLoading(false)
+    try {
+      const { user, error: signupError } = await signUpWithEmail(
+        data.email,
+        data.password,
+        data.displayName || ''
+      )
+      
+      setLoading(false)
 
-    if (signupError) {
-      setError(signupError)
-    } else if (user) {
-      router.push('/profile/setup') // プロフィール初期設定ページへ
+      if (signupError) {
+        console.error('新規登録エラー:', signupError)
+        setError(signupError)
+      } else if (user) {
+        console.log('新規登録成功:', user.uid)
+        router.push('/profile/setup') // プロフィール初期設定ページへ
+      }
+    } catch (error) {
+      console.error('予期しないエラー:', error)
+      setLoading(false)
+      setError('予期しないエラーが発生しました。再度お試しください。')
     }
   }
 

@@ -10,6 +10,7 @@ interface AuthState {
   setUser: (user: FirebaseUser | null) => void
   setUserProfile: (profile: User | null) => void
   setLoading: (loading: boolean) => void
+  signOut: () => void
   logout: () => void
 }
 
@@ -34,6 +35,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     ...state,
     isLoading: loading,
   })),
+  
+  signOut: () => set({
+    user: null,
+    userProfile: null,
+    isAuthenticated: false,
+    isLoading: false,
+  }),
   
   logout: () => set({
     user: null,

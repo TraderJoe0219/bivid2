@@ -48,28 +48,34 @@ interface UseSkillSearchReturn {
   searchNearby: (lat: number, lng: number, radius?: number) => Promise<void>
 }
 
-// 検索APIの呼び出し（モック実装）
+// 検索APIの呼び出し
 async function searchSkillsAPI(params: SkillSearchParams): Promise<SkillSearchResult> {
-  // TODO: 実際のAPI呼び出しに置き換え
-  const mockDelay = Math.random() * 500 + 300 // 300-800ms のランダム遅延
-  await new Promise(resolve => setTimeout(resolve, mockDelay))
-  
-  // モックデータ
-  const mockSkills: Skill[] = []
-  const totalCount = Math.floor(Math.random() * 200) + 50
-  
-  return {
-    skills: mockSkills,
-    total: totalCount,
-    page: params.page || 1,
-    limit: params.limit || 20,
-    hasMore: (params.page || 1) * (params.limit || 20) < totalCount,
-    facets: {
-      categories: [],
-      priceRanges: [],
-      ratings: [],
-      locations: []
+  try {
+    // URLパラメータの構築
+    const searchParams = new URLSearchParams()
+    
+    if (params.keyword) searchParams.set('keyword', params.keyword)
+    if (params.categories?.length) searchParams.set('categories', params.categories.join(','))
+    if (params.locationType?.length) searchParams.set('locationType', params.locationType.join(','))
+    if (params.difficulty?.length) searchParams.set('difficulty', params.difficulty.join(','))
+    if (params.priceRange?.min !== undefined) searchParams.set('priceMin', params.priceRange.min.toString())
+    if (params.priceRange?.max !== undefined) searchParams.set('priceMax', params.priceRange.max.toString())
+    if (params.rating !== undefined) searchParams.set('rating', params.rating.toString())
+    if (params.availability) searchParams.set('availability', params.availability)
+    if (params.sortBy) searchParams.set('sortBy', params.sortBy)
+    if (params.page) searchParams.set('page', params.page.toString())
+    if (params.limit) searchParams.set('limit', params.limit.toString())
+    
+    const response = await fetch(`/api/skills/search?${searchParams.toString()}`)
+    
+    if (!response.ok) {
+      throw new Error(`Search failed: ${response.statusText}`)
     }
+    
+    return await response.json()
+  } catch (error) {
+    console.error('Failed to search skills:', error)
+    throw error
   }
 }
 

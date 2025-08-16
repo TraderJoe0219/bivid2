@@ -15,7 +15,9 @@ export const DEFAULT_ZOOM = 13;
 export const mapsLoader = new Loader({
   apiKey: GOOGLE_MAPS_API_KEY,
   version: 'weekly',
-  libraries: ['places', 'geometry']
+  libraries: ['places', 'geometry'],
+  retries: 3,
+  mapIds: []
 });
 
 // 地図の初期化オプション

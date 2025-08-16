@@ -2,6 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Skill } from '@/types/skill'
+import { 
+  getUserFavorites, 
+  getFavoriteSkills, 
+  addFavoriteSkill, 
+  removeFavoriteSkill 
+} from '@/lib/favoritesApi'
+import { useAuthStore } from '@/store/authStore'
 
 interface FavoritesState {
   favoriteIds: Set<string>
@@ -24,7 +31,6 @@ interface UseFavoritesReturn {
 }
 
 const STORAGE_KEY = 'bivid_favorites'
-const FAVORITES_API_ENDPOINT = '/api/favorites' // TODO: 実際のAPIエンドポイント
 
 // ローカルストレージからお気に入りIDを読み込み
 const loadFavoriteIdsFromStorage = (): string[] => {
@@ -55,22 +61,7 @@ const fetchFavoriteSkills = async (skillIds: string[]): Promise<Skill[]> => {
   if (skillIds.length === 0) return []
   
   try {
-    // TODO: 実際のAPI呼び出しに置き換え
-    // const response = await fetch(`${FAVORITES_API_ENDPOINT}/skills`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ skillIds })
-    // })
-    // 
-    // if (!response.ok) {
-    //   throw new Error('Failed to fetch favorite skills')
-    // }
-    // 
-    // return await response.json()
-    
-    // モック実装 - 実際の実装では上記のAPI呼び出しを使用
-    console.log('Mock: Fetching favorite skills for IDs:', skillIds)
-    return []
+    return await getFavoriteSkills(skillIds)
   } catch (error) {
     console.error('Failed to fetch favorite skills:', error)
     throw error
@@ -80,18 +71,7 @@ const fetchFavoriteSkills = async (skillIds: string[]): Promise<Skill[]> => {
 // APIでお気に入りを追加
 const addFavoriteToAPI = async (skillId: string): Promise<void> => {
   try {
-    // TODO: 実際のAPI呼び出しに置き換え
-    // const response = await fetch(`${FAVORITES_API_ENDPOINT}/${skillId}`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' }
-    // })
-    // 
-    // if (!response.ok) {
-    //   throw new Error('Failed to add favorite')
-    // }
-    
-    // モック実装
-    console.log('Mock: Adding favorite to API:', skillId)
+    await addFavoriteSkill(skillId)
   } catch (error) {
     console.error('Failed to add favorite to API:', error)
     throw error
@@ -101,17 +81,7 @@ const addFavoriteToAPI = async (skillId: string): Promise<void> => {
 // APIからお気に入りを削除
 const removeFavoriteFromAPI = async (skillId: string): Promise<void> => {
   try {
-    // TODO: 実際のAPI呼び出しに置き換え
-    // const response = await fetch(`${FAVORITES_API_ENDPOINT}/${skillId}`, {
-    //   method: 'DELETE'
-    // })
-    // 
-    // if (!response.ok) {
-    //   throw new Error('Failed to remove favorite')
-    // }
-    
-    // モック実装
-    console.log('Mock: Removing favorite from API:', skillId)
+    await removeFavoriteSkill(skillId)
   } catch (error) {
     console.error('Failed to remove favorite from API:', error)
     throw error
@@ -119,6 +89,7 @@ const removeFavoriteFromAPI = async (skillId: string): Promise<void> => {
 }
 
 export function useFavorites(): UseFavoritesReturn {
+  const { user } = useAuthStore()
   const [state, setState] = useState<FavoritesState>({
     favoriteIds: new Set(),
     favorites: [],
@@ -126,17 +97,41 @@ export function useFavorites(): UseFavoritesReturn {
     error: null
   })
 
-  // 初期化: ローカルストレージからお気に入りIDを読み込み
+  // 初期化: ユーザーがログインしている場合はサーバーから、そうでなければローカルストレージから読み込み
   useEffect(() => {
     const initializeFavorites = async () => {
       try {
         setState(prev => ({ ...prev, isLoading: true, error: null }))
         
-        const storedIds = loadFavoriteIdsFromStorage()
-        const favoriteIdsSet = new Set(storedIds)
+        let favoriteIds: string[] = []
+        
+        if (user) {
+          // ログイン済みの場合はサーバーから取得
+          try {
+            favoriteIds = await getUserFavorites()
+            // サーバーのデータをローカルストレージに同期
+            saveFavoriteIdsToStorage(favoriteIds)
+          } catch (error) {
+            // サーバーエラーの場合はローカルストレージから読み込み
+            console.warn('Failed to fetch favorites from server, using local storage:', error)
+            favoriteIds = loadFavoriteIdsFromStorage()
+          }
+        } else {
+          // 未ログインの場合はローカルストレージから読み込み
+          favoriteIds = loadFavoriteIdsFromStorage()
+        }
+        
+        const favoriteIdsSet = new Set(favoriteIds)
         
         // お気に入りスキルの詳細データを取得
-        const favoriteSkills = await fetchFavoriteSkills(storedIds)
+        let favoriteSkills: Skill[] = []
+        if (favoriteIds.length > 0) {
+          try {
+            favoriteSkills = await fetchFavoriteSkills(favoriteIds)
+          } catch (error) {
+            console.warn('Failed to fetch favorite skills details:', error)
+          }
+        }
         
         setState({
           favoriteIds: favoriteIdsSet,
@@ -154,7 +149,7 @@ export function useFavorites(): UseFavoritesReturn {
     }
 
     initializeFavorites()
-  }, [])
+  }, [user])
 
   // お気に入り状態を確認
   const isFavorite = useCallback((skillId: string): boolean => {
@@ -182,8 +177,10 @@ export function useFavorites(): UseFavoritesReturn {
       // ローカルストレージに保存
       saveFavoriteIdsToStorage(Array.from(newFavoriteIds))
 
-      // APIに同期
-      await addFavoriteToAPI(skill.id)
+      // ログイン済みの場合はAPIに同期
+      if (user) {
+        await addFavoriteToAPI(skill.id)
+      }
     } catch (error) {
       // エラー時は状態を戻す
       setState(prev => ({
@@ -221,8 +218,10 @@ export function useFavorites(): UseFavoritesReturn {
       // ローカルストレージに保存
       saveFavoriteIdsToStorage(Array.from(newFavoriteIds))
 
-      // APIに同期
-      await removeFavoriteFromAPI(skillId)
+      // ログイン済みの場合はAPIに同期
+      if (user) {
+        await removeFavoriteFromAPI(skillId)
+      }
     } catch (error) {
       // エラー時は状態を戻す
       setState(prev => ({
@@ -248,6 +247,30 @@ export function useFavorites(): UseFavoritesReturn {
     
     return willBeFavorite
   }, [state.favoriteIds, addFavorite, removeFavorite])
+
+  // ログイン状態が変わった時にお気に入りを同期
+  useEffect(() => {
+    if (user && state.favoriteIds.size > 0) {
+      // ローカルのお気に入りをサーバーに同期
+      const syncFavoritesToServer = async () => {
+        try {
+          const localIds = Array.from(state.favoriteIds)
+          const serverIds = await getUserFavorites()
+          
+          // ローカルにあってサーバーにないものを追加
+          for (const skillId of localIds) {
+            if (!serverIds.includes(skillId)) {
+              await addFavoriteToAPI(skillId)
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to sync favorites to server:', error)
+        }
+      }
+      
+      syncFavoritesToServer()
+    }
+  }, [user, state.favoriteIds])
 
   // お気に入りをすべてクリア
   const clearFavorites = useCallback(async (): Promise<void> => {

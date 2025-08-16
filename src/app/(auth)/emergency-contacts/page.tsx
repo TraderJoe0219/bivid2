@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import { EmergencyContactForm } from '@/components/auth/EmergencyContactForm'
 import { Loading } from '@/components/Loading'
+import { saveEmergencyContacts } from '@/lib/auth'
 import type { EmergencyContact } from '@/types/auth'
 
 export default function EmergencyContactsPage() {
@@ -40,11 +41,8 @@ export default function EmergencyContactsPage() {
         updatedAt: new Date()
       }
 
-      // TODO: Firestoreへの保存
-      // await updateDoc(doc(db, 'users', user.uid), emergencyContactsData)
-      
-      // 一時的なモック処理
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Firestoreへの緊急連絡先保存
+      await saveEmergencyContacts(user.uid, contacts)
 
       setSuccess('緊急連絡先を登録しました！ユーザー登録が完了しました。')
 

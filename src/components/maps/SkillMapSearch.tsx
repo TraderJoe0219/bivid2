@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { GoogleMap } from './GoogleMap';
 import { MapSearch } from './MapSearch';
-import { Search, Filter, Users, Star, MapPin, Clock } from 'lucide-react';
+import { Search, Filter, Users, Star, MapPin, Clock, ExternalLink } from 'lucide-react';
 import { DEFAULT_CENTER, calculateDistance } from '@/lib/maps';
 
 // スキル提供者の型定義
@@ -46,25 +47,25 @@ const sampleProviders: SkillProvider[] = [
     rating: 4.8,
     reviewCount: 24,
     location: {
-      lat: 34.7816,
-      lng: 135.4689,
-      address: '大阪府豊中市本町3-1-1'
+      lat: 35.6434,
+      lng: 139.6690,
+      address: '東京都世田谷区三軒茶屋'
     },
-    price: 2000,
+    price: 3500,
     availability: ['平日午前', '土日']
   },
   {
     id: '2',
-    name: '佐藤 太郎',
+    name: '鈴木 一郎',
     skills: ['園芸', 'ガーデニング', '野菜作り'],
     rating: 4.6,
-    reviewCount: 18,
+    reviewCount: 15,
     location: {
-      lat: 34.7900,
-      lng: 135.4600,
-      address: '大阪府豊中市岡町北1-2-3'
+      lat: 35.6221,
+      lng: 139.5463,
+      address: '神奈川県川崎市多摩区'
     },
-    price: 1500,
+    price: 2500,
     availability: ['平日午後', '土日']
   },
   {
@@ -74,9 +75,9 @@ const sampleProviders: SkillProvider[] = [
     rating: 4.9,
     reviewCount: 31,
     location: {
-      lat: 34.7750,
-      lng: 135.4750,
-      address: '大阪府豊中市蛍池東町2-4-5'
+      lat: 35.6580,
+      lng: 139.7016,
+      address: '東京都渋谷区恵比寿'
     },
     price: 1800,
     availability: ['平日午前', '平日午後']
@@ -84,6 +85,7 @@ const sampleProviders: SkillProvider[] = [
 ];
 
 export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }) => {
+  const router = useRouter();
   const [center, setCenter] = useState<google.maps.LatLngLiteral>(DEFAULT_CENTER);
   const [providers, setProviders] = useState<SkillProvider[]>(sampleProviders);
   const [filteredProviders, setFilteredProviders] = useState<SkillProvider[]>(sampleProviders);
@@ -166,6 +168,11 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
     applyFilters();
   }, [applyFilters]);
 
+  // スキル詳細ページに遷移する関数
+  const handleViewSkillDetail = useCallback((skillId: string) => {
+    router.push(`/skills/${skillId}`);
+  }, [router]);
+
   // 地図用マーカーデータ
   const markers = filteredProviders.map(provider => ({
     id: provider.id,
@@ -179,8 +186,11 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
           <span class="text-yellow-500">★</span>
           <span class="text-sm ml-1">${provider.rating} (${provider.reviewCount}件)</span>
         </div>
-        <p class="text-sm text-gray-600">¥${provider.price}/時間</p>
+        <p class="text-sm text-gray-600">¥${provider.price}/回</p>
         ${provider.distance ? `<p class="text-sm text-gray-500">約${provider.distance.toFixed(1)}km</p>` : ''}
+        <button onclick="window.location.href='/skills/${provider.id}'" class="mt-2 bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
+          詳細を見る
+        </button>
       </div>
     `
   }));
@@ -336,11 +346,18 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
                   
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-orange-600">
-                      ¥{provider.price}/時間
+                      ¥{provider.price}/回
                     </span>
-                    <span className="text-sm text-gray-500">
-                      {provider.reviewCount}件のレビュー
-                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewSkillDetail(provider.id);
+                      }}
+                      className="text-sm text-orange-600 hover:text-orange-700 flex items-center space-x-1"
+                    >
+                      <span>詳細を見る</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </button>
                   </div>
                 </div>
               ))}
