@@ -1,32 +1,26 @@
-import * as admin from 'firebase-admin'
+import * as admin from "firebase-admin";
 
-let app: admin.app.App | undefined
+const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
+const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
+const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
-export function getAdminApp(): admin.app.App | undefined {
-  if (app) return app
-  try {
-    if (admin.apps.length) {
-      app = admin.app()
-      return app
-    }
-    // Initialize using default credentials if available (e.g., Google Application Default Credentials)
-    app = admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
-    })
-    return app
-  } catch (e) {
-    // Credentials not configured; gracefully degrade
-    return undefined
-  }
+if (!projectId || !clientEmail || !privateKey) {
+  throw new Error("Missing Firebase Admin envs: FIREBASE_ADMIN_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY");
 }
 
-export async function verifyIdToken(idToken: string): Promise<admin.auth.DecodedIdToken | null> {
-  const a = getAdminApp()
-  if (!a) return null
-  try {
-    const decoded = await a.auth().verifyIdToken(idToken)
-    return decoded
-  } catch (e) {
-    return null
-  }
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      // camelCase (現行の型が期待)
+      projectId,
+      clientEmail,
+      privateKey,
+      // snake_case (一部の内部チェック/古いエラー文言対策)
+      project_id: projectId as any,
+      client_email: clientEmail as any,
+      private_key: privateKey as any,
+    } as any),
+  });
 }
+
+export { admin };
