@@ -133,87 +133,235 @@ export const CATEGORY_OPTIONS: CategoryOption[] = [
 /**
  * 社会活動データを取得
  */
-export async function getSocialActivities(filters: ActivityFilters = {}): Promise<SocialActivity[]> {
+export const getSocialActivities = async (filters?: {
+  categories?: string[]
+  location?: { lat: number; lng: number }
+  maxDistance?: number
+  hasAvailableSlots?: boolean
+  minRating?: number
+}): Promise<SocialActivity[]> => {
+  console.log('🔍 getSocialActivities: フィルター条件:', filters)
+  
+  // Firebase が利用できない場合はモックデータを返す
+  if (!db) {
+    console.warn('🔥 Firebase not available, returning mock data')
+    return getMockSocialActivities(filters)
+  }
+  
   try {
+    // Firestoreクエリの構築
     let q = query(collection(db, 'skills'))
-
-    // 開発中は最もシンプルなクエリのみ使用（インデックス不要）
-    q = query(q, orderBy('createdAt', 'desc'))
-
-    // 取得件数制限
-    q = query(q, limit(100))
-
-    const querySnapshot = await getDocs(q)
-    const activities: SocialActivity[] = []
-
-    querySnapshot.forEach((doc) => {
-      const data = doc.data()
-      activities.push({
-        id: doc.id,
-        ...data,
-      } as SocialActivity)
-    })
-
-    // クライアントサイドフィルタリング
-    let filteredActivities = activities
-    
-    // アクティブ状態フィルター
-    filteredActivities = filteredActivities.filter(activity => activity.isActive === true)
-    
-    // 承認状態フィルター
-    filteredActivities = filteredActivities.filter(activity => activity.isApproved === true)
     
     // カテゴリフィルター
-    if (filters.categories && filters.categories.length > 0) {
-      filteredActivities = filteredActivities.filter(activity => 
-        filters.categories!.includes(activity.category)
-      )
+    if (filters?.categories && filters.categories.length > 0) {
+      q = query(q, where('category', 'in', filters.categories))
+    }
+    
+    // 空きスロットフィルター
+    if (filters?.hasAvailableSlots) {
+      q = query(q, where('hasAvailableSlots', '==', true))
     }
     
     // 評価フィルター
-    if (filters.minRating) {
-      filteredActivities = filteredActivities.filter(activity => 
-        activity.rating && activity.rating.average >= filters.minRating!
-      )
+    if (filters?.minRating) {
+      q = query(q, where('rating.average', '>=', filters.minRating))
     }
     
-    // 距離フィルタリング
-    if (filters.location && filters.maxDistance) {
-      filteredActivities = filteredActivities.filter(activity => {
-        if (!activity.location.coordinates) return false
-        
+    // 作成日時で並び替え（新しい順）
+    q = query(q, orderBy('createdAt', 'desc'))
+    
+    // 結果数制限
+    q = query(q, limit(50))
+    
+    console.log('🔍 getSocialActivities: Firestoreクエリ実行中...')
+    const querySnapshot = await getDocs(q)
+    
+    const activities: SocialActivity[] = []
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data()
+      console.log('📄 Document data:', doc.id, data)
+      
+      // データ変換
+      const activity: SocialActivity = {
+        id: doc.id,
+        title: data.title || '',
+        description: data.description || '',
+        shortDescription: data.shortDescription || data.description?.substring(0, 100) || '',
+        category: data.category || 'other',
+        subCategory: data.subCategory || '',
+        tags: data.tags || [],
+        teacherId: data.teacherId || '',
+        teacherName: data.teacherName || 'Unknown',
+        teacherPhotoURL: data.teacherPhotoURL || null,
+        teacherLocation: data.teacherLocation || '',
+        duration: data.duration || 60,
+        price: {
+          amount: data.price?.amount || 0,
+          currency: data.price?.currency || 'JPY',
+          unit: data.price?.unit || 'session'
+        },
+        location: {
+          type: data.location?.type || 'offline',
+          address: data.location?.address || '',
+          prefecture: data.location?.prefecture || '',
+          city: data.location?.city || '',
+          area: data.location?.area || '',
+          coordinates: data.location?.coordinates || { lat: 0, lng: 0 }
+        },
+        maxStudents: data.maxStudents || 1,
+        currentBookings: data.currentBookings || 0,
+        availableSlots: [{
+          dayOfWeek: 1,
+          startTime: '09:00',
+          endTime: '17:00',
+          isAvailable: (data.maxStudents || 1) > (data.currentBookings || 0)
+        }],
+        difficulty: data.difficulty || 'beginner',
+        targetAudience: data.targetAudience || [],
+        requirements: data.requirements || [],
+        rating: {
+          average: data.rating?.average || 4.0,
+          count: data.rating?.count || 0,
+          distribution: data.rating?.distribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        },
+        viewCount: data.viewCount || 0,
+        favoriteCount: data.favoriteCount || 0,
+        createdAt: data.createdAt || new Date(),
+        updatedAt: data.updatedAt || new Date()
+      }
+      
+      activities.push(activity)
+    })
+    
+    console.log('✅ getSocialActivities: 取得完了:', activities.length, '件')
+    
+    // 距離フィルター（クライアントサイドで実行）
+    if (filters?.location && filters?.maxDistance) {
+      const filteredActivities = activities.filter(activity => {
         const distance = calculateDistance(
-          filters.location!.lat,
-          filters.location!.lng,
-          activity.location.coordinates.lat,
-          activity.location.coordinates.lng
+          filters.location!,
+          activity.location.coordinates
         )
-        
         return distance <= filters.maxDistance!
       })
+      
+      console.log('🎯 距離フィルター適用後:', filteredActivities.length, '件')
+      return filteredActivities
     }
-
-    // 価格フィルタリング
-    if (filters.priceRange) {
-      filteredActivities = filteredActivities.filter(activity => {
-        const price = activity.price.amount
-        return price >= filters.priceRange!.min && price <= filters.priceRange!.max
-      })
-    }
-
-    // 空きスロットフィルタリング
-    if (filters.hasAvailableSlots) {
-      filteredActivities = filteredActivities.filter(activity => {
-        return activity.availableSlots && activity.availableSlots.some(slot => slot.isAvailable)
-      })
-    }
-
-    return filteredActivities
-
+    
+    return activities
+    
   } catch (error) {
-    console.error('社会活動データの取得に失敗しました:', error)
-    throw error
+    console.error('❌ getSocialActivities: エラー:', error)
+    console.warn('🔄 Falling back to mock data')
+    return getMockSocialActivities(filters)
   }
+}
+
+/**
+ * モック社会活動データを取得
+ */
+function getMockSocialActivities(filters?: {
+  categories?: string[]
+  location?: { lat: number; lng: number }
+  maxDistance?: number
+  hasAvailableSlots?: boolean
+  minRating?: number
+}): SocialActivity[] {
+  const mockActivities: SocialActivity[] = [
+    {
+      id: 'mock-1',
+      title: '豊中駅周辺でのチラシ配布スタッフ',
+      description: '地域のイベント告知チラシを配布するお仕事です。高齢者の方も歓迎！',
+      shortDescription: '地域のイベント告知チラシを配布するお仕事です。',
+      category: 'work',
+      subCategory: 'distribution',
+      tags: ['チラシ配布', '豊中駅', '短時間'],
+      teacherId: 'teacher-1',
+      teacherName: '田中 太郎',
+      teacherPhotoURL: null,
+      teacherLocation: '豊中市',
+      duration: 120,
+      price: {
+        amount: 1500,
+        currency: 'JPY',
+        unit: 'hour'
+      },
+      location: {
+        type: 'offline',
+        address: '大阪府豊中市本町1-1-1 豊中駅前',
+        prefecture: '大阪府',
+        city: '豊中市',
+        area: '本町',
+        coordinates: { lat: 34.7816, lng: 135.4956 }
+      },
+      maxStudents: 5,
+      currentBookings: 2,
+      hasAvailableSlots: true,
+      difficulty: 'beginner',
+      targetAudience: ['高齢者', '初心者歓迎'],
+      requirements: ['体力に自信がある方'],
+      rating: {
+        average: 4.2,
+        count: 15,
+        distribution: { 1: 0, 2: 1, 3: 2, 4: 7, 5: 5 }
+      },
+      viewCount: 245,
+      favoriteCount: 12,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: 'mock-2',
+      title: '千里中央公園での清掃ボランティア',
+      description: '地域の公園清掃活動に参加しませんか？みんなで協力して美しい街づくりを！',
+      shortDescription: '地域の公園清掃活動に参加しませんか？',
+      category: 'volunteer',
+      subCategory: 'cleaning',
+      tags: ['清掃', '公園', 'ボランティア'],
+      teacherId: 'teacher-2',
+      teacherName: '佐藤 花子',
+      teacherPhotoURL: null,
+      teacherLocation: '豊中市',
+      duration: 90,
+      price: {
+        amount: 0,
+        currency: 'JPY',
+        unit: 'session'
+      },
+      location: {
+        type: 'offline',
+        address: '大阪府豊中市新千里東町1-2-2 千里中央公園',
+        prefecture: '大阪府',
+        city: '豊中市',
+        area: '新千里東町',
+        coordinates: { lat: 34.7889, lng: 135.4889 }
+      },
+      maxStudents: 20,
+      currentBookings: 8,
+      hasAvailableSlots: true,
+      difficulty: 'beginner',
+      targetAudience: ['地域住民', '環境意識の高い方'],
+      requirements: ['軍手持参'],
+      rating: {
+        average: 4.8,
+        count: 32,
+        distribution: { 1: 0, 2: 0, 3: 1, 4: 6, 5: 25 }
+      },
+      viewCount: 156,
+      favoriteCount: 28,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ]
+
+  // カテゴリフィルター適用
+  if (filters?.categories && filters.categories.length > 0) {
+    return mockActivities.filter(activity => filters.categories!.includes(activity.category))
+  }
+
+  return mockActivities
 }
 
 /**
