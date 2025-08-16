@@ -6,7 +6,6 @@
   "devCommand": "npm run dev",
   "functions": {
     "app/api/**": {
-      "runtime": "nodejs18.x",
       "maxDuration": 30
     }
   },
