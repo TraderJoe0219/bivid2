@@ -4,113 +4,236 @@
 
 @layer base {
   html {
-    /* 高齢者向けに大きめのベースフォントサイズ */
-    font-size: 18px;
+    font-size: 16px;
     scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-elder-bg text-elder-text;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    @apply bg-elder-bg-primary text-elder-text-primary;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    line-height: 1.7;
+    line-height: 1.6;
   }
 
-  /* フォーカス表示を強化 */
-  *:focus {
-    @apply outline-2 outline-offset-2 outline-elder-accent;
+  /* 改善されたフォーカス表示 */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-elder-interactive-primary ring-offset-2;
   }
 
   /* ボタンのデフォルトスタイル */
   button {
-    @apply min-h-touch cursor-pointer;
+    @apply min-h-touch cursor-pointer transition-all duration-200;
   }
 
-  /* リンクのデフォルトスタイル */
+  /* リンクのアクセシブルスタイル */
   a {
-    @apply text-elder-accent hover:underline focus:underline;
+    @apply text-elder-interactive-primary underline-offset-2 
+           hover:text-elder-interactive-hover hover:underline 
+           focus-visible:text-elder-interactive-active;
   }
 
-  /* 入力フィールドのデフォルトスタイル */
+  /* 入力フィールドのアクセシブルスタイル */
   input, textarea, select {
-    @apply min-h-touch text-base;
+    @apply min-h-touch text-base transition-all duration-200
+           border-elder-border-medium focus:border-elder-interactive-primary;
+  }
+
+  /* 高コントラストテキストサイズ */
+  .text-large {
+    @apply text-lg leading-relaxed;
+  }
+
+  .text-readable {
+    @apply text-base leading-loose;
   }
 }
 
 @layer components {
-  /* 高齢者向けボタンスタイル */
-  .btn-elder {
+  /* モダンなボタンコンポーネント */
+  .btn {
     @apply inline-flex items-center justify-center min-h-touch px-6 py-3 
-           text-base font-medium rounded-elder border-2 border-transparent
+           text-base font-semibold rounded-elder-lg border
            transition-all duration-200 ease-in-out
-           focus:outline-none focus:ring-2 focus:ring-offset-2;
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-primary {
-    @apply btn-elder bg-elder-accent text-white hover:bg-blue-600 
-           focus:ring-elder-accent;
+    @apply btn bg-elder-interactive-primary text-white border-elder-interactive-primary
+           hover:bg-elder-interactive-hover hover:border-elder-interactive-hover
+           focus-visible:ring-elder-interactive-primary
+           active:bg-elder-interactive-active active:border-elder-interactive-active;
   }
 
   .btn-secondary {
-    @apply btn-elder bg-white text-elder-text border-gray-300 
-           hover:bg-gray-50 focus:ring-gray-500;
+    @apply btn bg-elder-bg-primary text-elder-text-primary border-elder-border-strong
+           hover:bg-elder-bg-accent hover:border-elder-interactive-primary
+           focus-visible:ring-elder-interactive-primary;
   }
 
   .btn-success {
-    @apply btn-elder bg-elder-success text-white hover:bg-green-600 
-           focus:ring-elder-success;
+    @apply btn bg-elder-success text-white border-elder-success
+           hover:bg-green-600 hover:border-green-600
+           focus-visible:ring-elder-success;
   }
 
   .btn-warning {
-    @apply btn-elder bg-elder-warning text-white hover:bg-orange-600 
-           focus:ring-elder-warning;
+    @apply btn bg-elder-warning text-white border-elder-warning
+           hover:bg-orange-600 hover:border-orange-600
+           focus-visible:ring-elder-warning;
   }
 
   .btn-danger {
-    @apply btn-elder bg-elder-error text-white hover:bg-red-600 
-           focus:ring-elder-error;
+    @apply btn bg-elder-error text-white border-elder-error
+           hover:bg-red-600 hover:border-red-600
+           focus-visible:ring-elder-error;
   }
 
-  /* カードスタイル */
-  .card-elder {
-    @apply bg-white rounded-elder shadow-md border border-gray-200 p-6;
+  .btn-ghost {
+    @apply btn bg-transparent text-elder-interactive-primary border-transparent
+           hover:bg-elder-bg-accent hover:text-elder-interactive-hover
+           focus-visible:ring-elder-interactive-primary;
   }
 
-  /* 入力フィールドスタイル */
-  .input-elder {
-    @apply w-full min-h-touch px-4 py-3 text-base border border-gray-300 
-           rounded-elder focus:ring-2 focus:ring-elder-accent focus:border-elder-accent
-           placeholder-gray-500;
+  /* カードコンポーネント */
+  .card {
+    @apply bg-elder-bg-primary rounded-elder-lg shadow-elder-md 
+           border border-elder-border-light p-6 transition-shadow duration-200;
   }
 
-  /* ナビゲーションスタイル */
-  .nav-elder {
-    @apply flex items-center space-x-6 text-lg;
+  .card-hover {
+    @apply card hover:shadow-elder-lg;
   }
 
-  .nav-elder a {
-    @apply px-4 py-2 rounded-elder hover:bg-gray-100 transition-colors;
+  .card-interactive {
+    @apply card-hover cursor-pointer hover:border-elder-interactive-primary
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-elder-interactive-primary;
+  }
+
+  /* 入力フィールドコンポーネント */
+  .input {
+    @apply w-full min-h-touch px-4 py-3 text-base 
+           bg-elder-bg-primary border border-elder-border-medium rounded-elder
+           placeholder-elder-text-muted
+           focus-visible:border-elder-interactive-primary focus-visible:ring-2 focus-visible:ring-elder-interactive-primary
+           disabled:bg-elder-bg-secondary disabled:text-elder-text-muted disabled:cursor-not-allowed;
+  }
+
+  /* ナビゲーションコンポーネント */
+  .nav-link {
+    @apply inline-flex items-center px-4 py-2 text-base font-medium rounded-elder
+           text-elder-text-secondary transition-colors duration-200
+           hover:text-elder-interactive-primary hover:bg-elder-bg-accent
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-elder-interactive-primary;
+  }
+
+  .nav-link-active {
+    @apply nav-link text-elder-interactive-primary bg-elder-bg-accent
+           border-b-2 border-elder-interactive-primary;
+  }
+
+  /* ユーティリティクラス */
+  .container-elder {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-spacing {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+
+  .text-hero {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold leading-tight;
+  }
+
+  .text-heading {
+    @apply text-2xl md:text-3xl font-bold leading-snug;
+  }
+
+  .text-subheading {
+    @apply text-xl md:text-2xl font-semibold leading-relaxed;
   }
 }
 
 @layer utilities {
-  /* 高齢者向けユーティリティクラス */
-  .text-elder-large {
-    @apply text-xl leading-relaxed;
+  /* アクセシビリティ・高齢者向けユーティリティ */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
-  .text-elder-xl {
-    @apply text-2xl leading-relaxed;
+  .focus-outline {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-elder-interactive-primary focus-visible:ring-offset-2;
   }
 
-  .spacing-elder {
+  .touch-target {
+    @apply min-h-touch min-w-touch;
+  }
+
+  .touch-target-lg {
+    @apply min-h-touch-lg min-w-touch-lg;
+  }
+
+  .high-contrast-text {
+    @apply text-elder-text-primary;
+    color: #000000 !important;
+  }
+
+  .high-contrast-bg {
+    @apply bg-elder-bg-primary;
+    background-color: #ffffff !important;
+  }
+
+  .spacing-comfortable {
     @apply space-y-6;
   }
 
-  .container-elder {
-    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+  .spacing-relaxed {
+    @apply space-y-8;
+  }
+
+  .text-accessible-size {
+    @apply text-base leading-loose;
+  }
+
+  .reduced-motion {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* プリント用スタイル */
+  @media print {
+    .print-hidden {
+      display: none !important;
+    }
+    
+    .print-visible {
+      display: block !important;
+    }
+  }
+
+  /* ダークモード対応準備 */
+  @media (prefers-color-scheme: dark) {
+    .dark-mode-ready {
+      /* 将来のダークモード対応のためのプレースホルダー */
+    }
+  }
+
+  /* 動きを減らしたい設定への対応 */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }

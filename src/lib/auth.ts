@@ -12,6 +12,7 @@ import {
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from './firebase'
 import type { UserProfile } from '@/types'
+import type { UserProfile as ExtendedUserProfile, EmergencyContact } from '@/types/auth'
 
 // Google認証プロバイダー
 const googleProvider = new GoogleAuthProvider()
@@ -191,5 +192,146 @@ export const updateUserProfile = async (
     return { error: null }
   } catch (error) {
     return { error: 'プロフィールの更新に失敗しました。' }
+  }
+}
+
+// 拡張ユーザープロフィールを更新
+export const updateExtendedUserProfile = async (
+  userId: string,
+  updates: Partial<ExtendedUserProfile>
+) => {
+  try {
+    await setDoc(
+      doc(db, 'users', userId),
+      {
+        ...updates,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    )
+    return { error: null }
+  } catch (error) {
+    return { error: 'プロフィールの更新に失敗しました。' }
+  }
+}
+
+// 電話番号認証の設定
+export const setupPhoneVerification = async (phoneNumber: string) => {
+  try {
+    // TODO: Firebase Phone Authの実装
+    // const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+    //   size: 'invisible',
+    //   callback: (response: any) => {
+    //     // reCAPTCHA solved
+    //   }
+    // }, auth)
+    
+    // const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier)
+    // return { confirmationResult, error: null }
+    
+    // 一時的なモック処理
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    return { confirmationResult: { confirm: () => Promise.resolve() }, error: null }
+  } catch (error) {
+    return { confirmationResult: null, error: '電話番号認証の設定に失敗しました。' }
+  }
+}
+
+// 認証コードの確認
+export const verifyPhoneCode = async (verificationCode: string, confirmationResult: any) => {
+  try {
+    // TODO: Firebase Phone Authの認証コード確認
+    // await confirmationResult.confirm(verificationCode)
+    
+    // 一時的なモック処理
+    if (verificationCode !== '123456') {
+      throw new Error('Invalid verification code')
+    }
+    
+    return { error: null }
+  } catch (error) {
+    return { error: '認証コードが正しくありません。' }
+  }
+}
+
+// 身分証明書の情報を保存
+export const saveDocumentInfo = async (
+  userId: string,
+  documentType: string,
+  documentURL: string
+) => {
+  try {
+    await setDoc(
+      doc(db, 'users', userId),
+      {
+        documentType,
+        documentURL,
+        isDocumentVerified: false,
+        documentUploadedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    )
+    return { error: null }
+  } catch (error) {
+    return { error: '書類情報の保存に失敗しました。' }
+  }
+}
+
+// 緊急連絡先を保存
+export const saveEmergencyContacts = async (
+  userId: string,
+  contacts: EmergencyContact[]
+) => {
+  try {
+    await setDoc(
+      doc(db, 'users', userId),
+      {
+        emergencyContacts: contacts.map(contact => ({
+          ...contact,
+          createdAt: serverTimestamp(),
+          isVerified: false
+        })),
+        registrationCompleted: true,
+        registrationCompletedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    )
+    return { error: null }
+  } catch (error) {
+    return { error: '緊急連絡先の保存に失敗しました。' }
+  }
+}
+
+// ユーザー登録の完了状態を確認
+export const checkRegistrationStatus = async (userId: string) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId))
+    if (userDoc.exists()) {
+      const userData = userDoc.data() as ExtendedUserProfile
+      return {
+        isPhoneVerified: userData.isPhoneVerified || false,
+        isDocumentVerified: userData.isDocumentVerified || false,
+        hasEmergencyContacts: (userData.emergencyContacts?.length || 0) > 0,
+        registrationCompleted: userData.registrationCompleted || false,
+        error: null
+      }
+    }
+    return { 
+      isPhoneVerified: false,
+      isDocumentVerified: false,
+      hasEmergencyContacts: false,
+      registrationCompleted: false,
+      error: null 
+    }
+  } catch (error) {
+    return { 
+      isPhoneVerified: false,
+      isDocumentVerified: false,
+      hasEmergencyContacts: false,
+      registrationCompleted: false,
+      error: '登録状況の確認に失敗しました。' 
+    }
   }
 }

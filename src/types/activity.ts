@@ -1,6 +1,7 @@
 /**
  * 活動詳細表示用の型定義
  */
+import { SocialActivityCategory } from './skill'
 
 // レビュー情報
 export interface ActivityReview {
@@ -11,6 +12,9 @@ export interface ActivityReview {
   reviewerId: string;
   date: string;
   helpful: number;
+  pros?: string[];
+  cons?: string[];
+  wouldRecommend: boolean;
 }
 
 // 提供者プロフィール
@@ -24,6 +28,8 @@ export interface ActivityOrganizer {
   joinedDate: string;
   verifiedStatus: boolean;
   specialties: string[];
+  location: string;
+  experience: number; // 年数
 }
 
 // 活動の基本情報
@@ -32,54 +38,118 @@ export interface SocialActivity {
   title: string;
   description: string;
   shortDescription: string;
-  category: string;
-  subCategory: string;
+  category: SocialActivityCategory;
+  subCategory?: string;
   tags: string[];
   
   // 日時・場所情報
-  date: string; // 開催日時（表示用）
-  duration: string; // 所要時間（表示用）
-  capacity: number; // 定員
+  schedule: {
+    type: 'single' | 'recurring' | 'flexible';
+    dates?: Array<{
+      date: Date;
+      startTime: string;
+      endTime: string;
+      maxParticipants: number;
+      currentParticipants: number;
+    }>;
+    recurring?: {
+      pattern: 'daily' | 'weekly' | 'monthly';
+      daysOfWeek?: number[];
+      startTime: string;
+      endTime: string;
+      startDate: Date;
+      endDate?: Date;
+    };
+  };
+  duration: number; // 分
   
-  // 価格
-  price: number; // 金額（円）
+  // 価格情報
+  pricing: {
+    type: 'free' | 'paid' | 'donation';
+    amount: number;
+    currency: 'JPY';
+    unit: string; // "回", "日", "時間"
+  };
   
   // 位置情報
   location: {
-    address: string;
+    type: 'offline' | 'online' | 'hybrid';
+    address?: string;
     coordinates?: google.maps.LatLngLiteral;
+    onlineLink?: string;
+    directions?: string;
   };
   
   // 評価・レビュー
-  rating: number; // 平均評価（数値）
-  reviewCount: number; // レビュー数
-  reviews?: ActivityReview[];
+  rating: {
+    average: number;
+    count: number;
+    distribution: {
+      5: number;
+      4: number;
+      3: number;
+      2: number;
+      1: number;
+    };
+  };
+  reviews: ActivityReview[];
   
-  // 提供者情報
+  // 主催者情報
   organizer: ActivityOrganizer;
   
   // メディア
-  images?: string[];
+  images: string[];
+  videos?: string[];
   
-  // その他の属性
-  maxStudents: number;
-  currentBookings: number;
-  availableSlots: Array<{
-    dayOfWeek: number;
-    startTime: string;
-    endTime: string;
-    isAvailable: boolean;
-  }>;
-  videoURL: string | null;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  // 参加者設定
+  capacity: {
+    maxParticipants: number;
+    minParticipants: number;
+    currentParticipants: number;
+    waitingList: number;
+  };
+  
+  // レベル・対象者
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'all_levels';
   targetAudience: string[];
+  ageRange: {
+    min?: number;
+    max?: number;
+    description: string;
+  };
   requirements: string[];
+  materials?: string[];
+  
+  // 統計情報
+  statistics: {
+    viewCount: number;
+    favoriteCount: number;
+    participantCount: number;
+    completionRate: number;
+    repeatParticipantRate: number;
+  };
+  
+  // ステータス
   isActive: boolean;
   isApproved: boolean;
-  viewCount: number;
-  favoriteCount: number;
+  isFeatured: boolean;
+  registrationStatus: 'open' | 'closed' | 'waitlist' | 'cancelled';
+  
+  // タイムスタンプ
   createdAt: Date;
   updatedAt: Date;
+  lastParticipatedAt?: Date;
+
+  // 下位互換性のための追加プロパティ
+  teacherName?: string;
+  teacherPhotoURL?: string;
+  teacherLocation?: string;
+  price: {
+    amount: number;
+    unit: string;
+  };
+  maxStudents: number;
+  currentBookings: number;
 }
 
 // お気に入り状態

@@ -1,9 +1,13 @@
+import { Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
 interface LoadingProps {
   size?: 'sm' | 'md' | 'lg'
   text?: string
+  className?: string
 }
 
-export default function Loading({ size = 'md', text = '読み込み中...' }: LoadingProps) {
+export function Loading({ size = 'md', text = '読み込み中...', className }: LoadingProps) {
   const sizeClasses = {
     sm: 'w-6 h-6',
     md: 'w-8 h-8',
@@ -17,9 +21,9 @@ export default function Loading({ size = 'md', text = '読み込み中...' }: Lo
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-8">
-      <div className={`${sizeClasses[size]} animate-spin rounded-full border-4 border-gray-300 border-t-elder-accent`}></div>
-      <p className={`mt-4 text-gray-600 ${textSizeClasses[size]}`}>{text}</p>
+    <div className={cn('flex flex-col items-center justify-center p-8', className)}>
+      <Loader2 className={cn('animate-spin text-elder-interactive-primary', sizeClasses[size])} />
+      <p className={cn('mt-4 text-elder-text-secondary', textSizeClasses[size])}>{text}</p>
     </div>
   )
 }
@@ -27,8 +31,13 @@ export default function Loading({ size = 'md', text = '読み込み中...' }: Lo
 // フルスクリーンローディング
 export function FullScreenLoading({ text = '読み込み中...' }: { text?: string }) {
   return (
-    <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50">
-      <Loading size="lg" text={text} />
+    <div className="fixed inset-0 bg-elder-bg-primary bg-opacity-95 flex items-center justify-center z-50">
+      <div className="card text-center">
+        <Loading size="lg" text={text} />
+      </div>
     </div>
   )
 }
+
+// デフォルトエクスポート（既存コード互換性のため）
+export default Loading
