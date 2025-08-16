@@ -1,6 +1,7 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
+  "runtime": "nodejs18.x",
   "framework": "nextjs",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
@@ -25,7 +26,6 @@
       "maxDuration": 30
     }
   },
-  "regions": ["nrt1"],
   "headers": [
     {
       "source": "/(.*)",
