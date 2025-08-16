@@ -44,7 +44,12 @@ export default function DocumentUploadPage() {
       }
 
       // Firestoreへの身分証明書情報保存
-      await saveDocumentInfo(user.uid, data.documentType, documentURL)
+      const safeDocumentUrl =
+        (data as any)?.documentURL ??
+        (data as any)?.documentUrl ??
+        (typeof documentURL === "string" ? documentURL : "") ??
+        "";
+      await saveDocumentInfo(user.uid, data.documentType, safeDocumentUrl);
 
       setSuccess('身分証明書を提出しました。確認までお時間をいただきます。')
 
