@@ -3,6 +3,11 @@ import { Loader } from '@googlemaps/js-api-loader';
 // Google Maps API設定
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
+// APIキーの検証
+if (!GOOGLE_MAPS_API_KEY) {
+  console.error('Google Maps API key is not configured');
+}
+
 // 大阪府豊中市の座標
 export const DEFAULT_CENTER = {
   lat: 34.7816,
@@ -17,7 +22,9 @@ export const mapsLoader = new Loader({
   version: 'weekly',
   libraries: ['places', 'geometry'],
   retries: 3,
-  mapIds: []
+  mapIds: [],
+  language: 'ja',
+  region: 'JP'
 });
 
 // 地図の初期化オプション

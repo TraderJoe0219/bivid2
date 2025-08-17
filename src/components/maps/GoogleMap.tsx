@@ -48,22 +48,31 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
       setIsLoading(true);
       setError(null);
 
+      console.log('地図初期化開始...');
+
       // APIキーのチェック
       const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+      console.log('API Key exists:', !!apiKey);
+      
       if (!apiKey) {
         throw new Error('Google Maps APIキーが設定されていません');
       }
 
       // Google Maps APIの読み込み
+      console.log('Google Maps API読み込み開始...');
       await mapsLoader.load();
+      console.log('Google Maps API読み込み完了');
 
       // マップオプションの取得
       const mapOptions = getMapOptions(center);
       mapOptions.zoom = zoom;
+      console.log('地図オプション:', mapOptions);
 
       // 地図インスタンスの作成
+      console.log('地図インスタンス作成中...');
       const map = new google.maps.Map(mapRef.current, mapOptions);
       mapInstanceRef.current = map;
+      console.log('地図インスタンス作成完了');
 
       // InfoWindow初期化
       infoWindowRef.current = new google.maps.InfoWindow();
@@ -75,30 +84,42 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
 
       // マップ読み込み完了イベント
       google.maps.event.addListenerOnce(map, 'idle', () => {
+        console.log('地図読み込み完了');
         setIsLoading(false);
         if (onMapLoad) {
           onMapLoad(map);
         }
       });
 
+      // タイムアウト設定（10秒後に強制的にローディング終了）
+      setTimeout(() => {
+        if (isLoading) {
+          console.log('地図読み込みタイムアウト');
+          setIsLoading(false);
+        }
+      }, 10000);
+
     } catch (err) {
       console.error('地図の初期化に失敗しました:', err);
       let errorMessage = '地図を読み込めませんでした';
       
       if (err instanceof Error) {
-        if (err.message.includes('APIキー')) {
+        console.error('エラー詳細:', err.message);
+        if (err.message.includes('APIキー') || err.message.includes('API key')) {
           errorMessage = 'Google Maps APIの設定に問題があります';
-        } else if (err.message.includes('quota')) {
+        } else if (err.message.includes('quota') || err.message.includes('OVER_QUERY_LIMIT')) {
           errorMessage = 'Google Maps APIの利用制限に達しています';
-        } else if (err.message.includes('network')) {
+        } else if (err.message.includes('network') || err.message.includes('Network')) {
           errorMessage = 'ネットワークエラーが発生しました';
+        } else if (err.message.includes('REQUEST_DENIED')) {
+          errorMessage = 'Google Maps APIへのアクセスが拒否されました';
         }
       }
       
       setError(errorMessage);
       setIsLoading(false);
     }
-  }, [center, zoom, onMapClick, onMapLoad]);
+  }, [center, zoom, onMapClick, onMapLoad, isLoading]);
 
   // マーカーの更新
   const updateMarkers = useCallback(() => {
