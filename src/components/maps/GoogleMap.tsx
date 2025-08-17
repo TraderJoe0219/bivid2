@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { mapsLoader, getMapOptions, DEFAULT_CENTER } from '@/lib/maps';
+import { mapsLoader, getMapOptions, DEFAULT_CENTER, createAdvancedMarker } from '@/lib/maps';
 import { MapPin, Navigation, Search, Loader2 } from 'lucide-react';
 
 interface GoogleMapProps {
@@ -122,14 +122,14 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
   }, [center, zoom, onMapClick, onMapLoad, isLoading]);
 
   // マーカーの更新
-  const updateMarkers = useCallback(() => {
+  const updateMarkers = useCallback(async () => {
     if (!mapInstanceRef.current) return;
 
     // 既存のマーカーを削除
     markersRef.current.forEach(marker => marker.setMap(null));
     markersRef.current = [];
 
-    // 新しいマーカーを追加
+    // 新しいマーカーを追加（従来のMarkerを使用）
     markers.forEach(markerData => {
       const marker = new google.maps.Marker({
         position: markerData.position,

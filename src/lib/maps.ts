@@ -20,12 +20,13 @@ export const DEFAULT_ZOOM = 13;
 export const mapsLoader = new Loader({
   apiKey: GOOGLE_MAPS_API_KEY,
   version: 'weekly',
-  libraries: ['places', 'geometry'],
+  libraries: ['places', 'geometry', 'marker'],
   retries: 3,
   mapIds: [],
   language: 'ja',
   region: 'JP'
 });
+
 
 // 地図の初期化オプション
 export const getMapOptions = (center = DEFAULT_CENTER): google.maps.MapOptions => ({
@@ -138,6 +139,42 @@ export const createMarkerIcon = (color: string = '#E85D04'): google.maps.Icon =>
   scaledSize: new google.maps.Size(32, 32),
   anchor: new google.maps.Point(16, 16)
 });
+
+// Advanced Markerを作成する関数
+export const createAdvancedMarker = async (
+  position: google.maps.LatLng | google.maps.LatLngLiteral,
+  map: google.maps.Map,
+  options: {
+    title?: string;
+    color?: string;
+    content?: HTMLElement;
+  } = {}
+): Promise<google.maps.marker.AdvancedMarkerElement> => {
+  await mapsLoader.load();
+  
+  const { color = '#E85D04', title, content } = options;
+  
+  // カスタムマーカーコンテンツを作成
+  const markerContent = content || document.createElement('div');
+  if (!content) {
+    markerContent.innerHTML = `
+      <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="12" fill="${color}" stroke="white" stroke-width="2"/>
+        <circle cx="16" cy="16" r="6" fill="white"/>
+      </svg>
+    `;
+    markerContent.style.cursor = 'pointer';
+  }
+  
+  const marker = new google.maps.marker.AdvancedMarkerElement({
+    position,
+    map,
+    title,
+    content: markerContent
+  });
+  
+  return marker;
+};
 
 // 距離を計算する関数
 export const calculateDistance = (
