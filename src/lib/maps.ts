@@ -20,9 +20,8 @@ export const DEFAULT_ZOOM = 13;
 export const mapsLoader = new Loader({
   apiKey: GOOGLE_MAPS_API_KEY,
   version: 'weekly',
-  libraries: ['places', 'geometry', 'marker'],
+  libraries: ['places', 'geometry'],
   retries: 3,
-  mapIds: [],
   language: 'ja',
   region: 'JP'
 });
@@ -41,6 +40,7 @@ export const getMapOptions = (center = DEFAULT_CENTER): google.maps.MapOptions =
   fullscreenControl: true,
   // 高齢者向けのUI設定
   gestureHandling: 'cooperative', // スクロール時の誤操作を防ぐ
+  disableDefaultUI: false,
   styles: [
     {
       featureType: 'poi',
