@@ -16,8 +16,18 @@ const firebaseConfig = {
 // 設定確認
 console.log('Firebase Config:', {
   ...firebaseConfig,
-  apiKey: firebaseConfig.apiKey ? '[設定済み]' : '[未設定]'
+  apiKey: firebaseConfig.apiKey ? (firebaseConfig.apiKey.includes('Demo') ? '[DEMOキー - 実際のキーが必要]' : '[設定済み]') : '[未設定]'
 })
+
+// 設定の妥当性チェック
+const isValidConfig = firebaseConfig.apiKey && 
+  firebaseConfig.authDomain && 
+  firebaseConfig.projectId && 
+  !firebaseConfig.apiKey.includes('Demo')
+
+if (!isValidConfig) {
+  console.error('⚠️ Firebase設定が無効です。正しいFirebase設定キーを.env.localに設定してください。')
+}
 
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]

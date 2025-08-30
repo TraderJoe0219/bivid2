@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { Skill, SkillMarker, SkillCluster, SkillCategory, SKILL_CATEGORIES } from '@/types/skill'
 import { MarkerClusterer } from '@googlemaps/markerclusterer'
+import { createAdvancedMarker } from '@/lib/maps'
 
 interface SkillMarkersProps {
   map: google.maps.Map | null
@@ -101,9 +102,9 @@ export default function SkillMarkers({
   showClusters = true,
   minZoomForClusters = 12
 }: SkillMarkersProps) {
-  const [markers, setMarkers] = useState<google.maps.Marker[]>([])
+  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([])
   const [markerClusterer, setMarkerClusterer] = useState<MarkerClusterer | null>(null)
-  const [selectedMarker, setSelectedMarker] = useState<google.maps.Marker | null>(null)
+  const [selectedMarker, setSelectedMarker] = useState<google.maps.marker.AdvancedMarkerElement | null>(null)
   const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null)
 
   // フィルタリングされたスキル
@@ -167,17 +168,41 @@ export default function SkillMarkers({
   }, [map])
 
   // マーカークリック処理
-  const handleMarkerClick = useCallback((skill: Skill, marker: google.maps.Marker) => {
+  const handleMarkerClick = useCallback((skill: Skill, marker: google.maps.marker.AdvancedMarkerElement) => {
     // 前のマーカーの選択状態をリセット
     if (selectedMarker && selectedMarker !== marker) {
-      selectedMarker.setIcon(getCategoryIcon(
-        selectedMarker.get('category'), 
-        false
-      ))
+      // Advanced Markerの場合はcontentを更新
+      if (selectedMarker.content && selectedMarker.content instanceof HTMLElement) {
+        const categoryConfig = SKILL_CATEGORIES.find(cat => cat.value === (selectedMarker as any).category)
+        const iconColor = getCategoryColor((selectedMarker as any).category)
+        selectedMarker.content.innerHTML = `
+          <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 0C7.163 0 0 7.163 0 16c0 16 16 24 16 24s16-8 16-24C32 7.163 24.837 0 16 0z" 
+                  fill="${iconColor}" stroke="#fff" stroke-width="2"/>
+            <circle cx="16" cy="16" r="8" fill="#fff"/>
+            <text x="16" y="20" text-anchor="middle" font-size="12" fill="${iconColor}">
+              ${categoryConfig?.icon || '📍'}
+            </text>
+          </svg>
+        `
+      }
     }
     
     // 新しいマーカーを選択状態に
-    marker.setIcon(getCategoryIcon(skill.category, true))
+    if (marker.content && marker.content instanceof HTMLElement) {
+      const categoryConfig = SKILL_CATEGORIES.find(cat => cat.value === skill.category)
+      const iconColor = '#FF6B35' // 選択時の色
+      marker.content.innerHTML = `
+        <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 16 16 24 16 24s16-8 16-24C32 7.163 24.837 0 16 0z" 
+                fill="${iconColor}" stroke="#fff" stroke-width="2"/>
+          <circle cx="16" cy="16" r="8" fill="#fff"/>
+          <text x="16" y="20" text-anchor="middle" font-size="12" fill="${iconColor}">
+            ${categoryConfig?.icon || '📍'}
+          </text>
+        </svg>
+      `
+    }
     setSelectedMarker(marker)
     
     // InfoWindow表示
@@ -198,7 +223,7 @@ export default function SkillMarkers({
   // InfoWindow内容作成
   const showSkillInfoWindow = useCallback((
     skill: Skill, 
-    marker: google.maps.Marker, 
+    marker: google.maps.marker.AdvancedMarkerElement, 
     infoWindow: google.maps.InfoWindow
   ) => {
     const distance = userLocation && skill.location.coordinates
@@ -262,42 +287,89 @@ export default function SkillMarkers({
 
   // マーカー作成と管理
   useEffect(() => {
-    if (!map || !filteredSkills.length) {
-      return
-    }
+    const createMarkers = async () => {
+      if (!map || !filteredSkills.length) {
+        return
+      }
 
-    // 既存マーカーをクリア
-    markers.forEach(marker => marker.setMap(null))
-    if (markerClusterer) {
-      markerClusterer.clearMarkers()
-    }
-
-    const newMarkers: google.maps.Marker[] = []
-
-    // 各スキルにマーカーを作成
-    filteredSkills.forEach(skill => {
-      if (!skill.location.coordinates) return
-
-      const marker = new google.maps.Marker({
-        position: skill.location.coordinates,
-        map: showClusters ? null : map,
-        title: skill.title,
-        icon: getCategoryIcon(skill.category),
-        zIndex: skill.isFeatured ? 1000 : 100
+      // 既存マーカーをクリア
+      markers.forEach(marker => {
+        if (marker.map) {
+          marker.map = null
+        }
       })
+      if (markerClusterer) {
+        markerClusterer.clearMarkers()
+      }
 
-      // カスタムプロパティ設定
-      marker.set('skillId', skill.id)
-      marker.set('category', skill.category)
-      marker.set('skill', skill)
+      const newMarkers: google.maps.marker.AdvancedMarkerElement[] = []
 
-      // クリックイベント
-      marker.addListener('click', () => {
-        handleMarkerClick(skill, marker)
-      })
+      // 各スキルにAdvanced Markerを作成
+      for (const skill of filteredSkills) {
+        if (!skill.location.coordinates) continue
 
-      newMarkers.push(marker)
-    })
+        try {
+        // カスタムマーカーコンテンツを作成
+        const categoryConfig = SKILL_CATEGORIES.find(cat => cat.value === skill.category)
+        const iconColor = getCategoryColor(skill.category)
+        
+        const markerElement = document.createElement('div')
+        markerElement.innerHTML = `
+          <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 0C7.163 0 0 7.163 0 16c0 16 16 24 16 24s16-8 16-24C32 7.163 24.837 0 16 0z" 
+                  fill="${iconColor}" stroke="#fff" stroke-width="2"/>
+            <circle cx="16" cy="16" r="8" fill="#fff"/>
+            <text x="16" y="20" text-anchor="middle" font-size="12" fill="${iconColor}">
+              ${categoryConfig?.icon || '📍'}
+            </text>
+          </svg>
+        `
+        markerElement.style.cursor = 'pointer'
+        markerElement.style.zIndex = skill.isFeatured ? '1000' : '100'
+
+        const marker = await createAdvancedMarker(
+          skill.location.coordinates,
+          showClusters ? null as any : map!,
+          {
+            title: skill.title,
+            content: markerElement
+          }
+        )
+
+        // カスタムプロパティ設定
+        ;(marker as any).skillId = skill.id
+        ;(marker as any).category = skill.category
+        ;(marker as any).skill = skill
+
+        // クリックイベント
+        marker.addListener('click', () => {
+          handleMarkerClick(skill, marker)
+        })
+
+        newMarkers.push(marker)
+      } catch (error) {
+        console.error('Advanced Markerの作成に失敗しました:', error)
+        
+        // フォールバックとして従来のMarkerを使用
+        const fallbackMarker = new google.maps.Marker({
+          position: skill.location.coordinates,
+          map: showClusters ? null : map,
+          title: skill.title,
+          icon: getCategoryIcon(skill.category),
+          zIndex: skill.isFeatured ? 1000 : 100
+        })
+
+        fallbackMarker.set('skillId', skill.id)
+        fallbackMarker.set('category', skill.category)
+        fallbackMarker.set('skill', skill)
+
+        fallbackMarker.addListener('click', () => {
+          handleMarkerClick(skill, fallbackMarker as any)
+        })
+
+        newMarkers.push(fallbackMarker as any)
+      }
+    }
 
     setMarkers(newMarkers)
 
@@ -339,6 +411,9 @@ export default function SkillMarkers({
 
       setMarkerClusterer(clusterer)
     }
+    }
+
+    createMarkers()
   }, [map, filteredSkills, showClusters, handleMarkerClick, onClusterClick, minZoomForClusters])
 
   // InfoWindowカスタムイベントリスナー

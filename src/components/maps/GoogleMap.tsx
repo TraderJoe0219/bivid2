@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { mapsLoader, getMapOptions, DEFAULT_CENTER, createAdvancedMarker } from '@/lib/maps';
+import { mapsLoader, getMapOptions, DEFAULT_CENTER } from '@/lib/maps';
 import { MapPin, Navigation, Search, Loader2 } from 'lucide-react';
 
 interface GoogleMapProps {
@@ -122,7 +122,7 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
   }, [center, zoom, onMapClick, onMapLoad, isLoading]);
 
   // マーカーの更新
-  const updateMarkers = useCallback(async () => {
+  const updateMarkers = useCallback(() => {
     if (!mapInstanceRef.current) return;
 
     // 既存のマーカーを削除
@@ -230,12 +230,12 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
       >
         <div className="text-center p-6">
           <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-          <p className="text-gray-600 text-lg">{error}</p>
+          <p className="text-gray-600 text-lg">地図の読み込みに失敗しました</p>
           <button
             onClick={initializeMap}
             className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
           >
-            再試行
+            再読み込み
           </button>
         </div>
       </div>
@@ -243,12 +243,12 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
   }
 
   return (
-    <div className={`relative ${className}`} style={{ height }}>
+    <div className={`relative ${className}`} style={{ height }} data-testid="google-map-container">
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg z-10">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 text-orange-500 animate-spin mx-auto mb-2" />
-            <p className="text-gray-600">地図を読み込んでいます...</p>
+            <Loader2 className="w-8 h-8 text-orange-500 animate-spin mx-auto mb-2" data-testid="loading-spinner" />
+            <p className="text-gray-600">地図を読み込み中...</p>
           </div>
         </div>
       )}

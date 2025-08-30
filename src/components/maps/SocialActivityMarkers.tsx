@@ -9,6 +9,7 @@ import {
   getMarkerSize,
   getCategoryDisplayName 
 } from '@/lib/mapMarkers'
+import { createAdvancedMarker } from '@/lib/maps'
 
 interface SocialActivityMarkersProps {
   map: google.maps.Map | null
@@ -36,7 +37,7 @@ export default function SocialActivityMarkers({
   console.log('🔥 SocialActivityMarkers component initialized!', { map: !!map, selectedCategories })
   
   const [activities, setActivities] = useState<SocialActivity[]>([])
-  const [markers, setMarkers] = useState<google.maps.Marker[]>([])
+  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([])
   const [clusters, setClusters] = useState<MarkerCluster[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -74,10 +75,18 @@ export default function SocialActivityMarkers({
 
   // マーカーをクリア
   const clearMarkers = useCallback(() => {
-    markers.forEach(marker => marker.setMap(null))
+    markers.forEach(marker => {
+      if (marker.map) {
+        marker.map = null
+      }
+    })
     setMarkers([])
     
-    clusters.forEach(cluster => cluster.marker.setMap(null))
+    clusters.forEach(cluster => {
+      if (cluster.marker && cluster.marker.setMap) {
+        cluster.marker.setMap(null)
+      }
+    })
     setClusters([])
   }, [])
 
@@ -116,7 +125,7 @@ export default function SocialActivityMarkers({
   }, [])
 
   // マーカーを作成・更新
-  const updateMarkers = useCallback(() => {
+  const updateMarkers = useCallback(async () => {
     if (!map) return
 
     clearMarkers()
@@ -133,70 +142,111 @@ export default function SocialActivityMarkers({
     const clusteredData = clusterMarkers(validActivities, zoomLevel)
     const markerSize = getMarkerSize(zoomLevel)
 
-    const newMarkers: google.maps.Marker[] = []
+    const newMarkers: google.maps.marker.AdvancedMarkerElement[] = []
     const newClusters: MarkerCluster[] = []
 
-    clusteredData.forEach(cluster => {
+    for (const cluster of clusteredData) {
       if (cluster.activities.length === 1) {
-        // 単一マーカー
-        const activity = cluster.activities[0]
-        const config = getMarkerConfig(activity.category)
-        const icon = createMarkerIcon(config, markerSize)
+        try {
+          // 単一マーカー - Advanced Marker使用
+          const activity = cluster.activities[0]
+          const config = getMarkerConfig(activity.category)
+          
+          // カスタムマーカー要素を作成
+          const markerElement = document.createElement('div')
+          const icon = createMarkerIcon(config, markerSize)
+          markerElement.innerHTML = `<img src="${icon}" style="width: ${markerSize}px; height: ${markerSize + 10}px; cursor: pointer;">`
 
-        const marker = new google.maps.Marker({
-          position: cluster.position,
-          map: map,
-          title: activity.title,
-          icon: {
-            url: icon,
-            scaledSize: new google.maps.Size(markerSize, markerSize + 10),
-            anchor: new google.maps.Point(markerSize / 2, markerSize + 10)
-          },
-          zIndex: 1000
-        })
+          const marker = await createAdvancedMarker(
+            cluster.position,
+            map!,
+            {
+              title: activity.title,
+              content: markerElement
+            }
+          )
 
-        marker.addListener('click', () => {
-          onMarkerClick?.(activity)
-        })
+          marker.addListener('click', () => {
+            onMarkerClick?.(activity)
+          })
 
-        newMarkers.push(marker)
-      } else {
-        // クラスターマーカー
-        const clusterIcon = createClusterIcon(cluster.activities.length, markerSize + 10)
+          newMarkers.push(marker)
+        } catch (error) {
+          console.error('Advanced Markerの作成に失敗:', error)
+          
+          // フォールバック
+          const activity = cluster.activities[0]
+          const config = getMarkerConfig(activity.category)
+          const icon = createMarkerIcon(config, markerSize)
 
-        const marker = new google.maps.Marker({
-          position: cluster.position,
-          map: map,
-          title: `${cluster.activities.length}件の活動`,
-          icon: {
-            url: clusterIcon,
-            scaledSize: new google.maps.Size(markerSize + 10, markerSize + 10),
-            anchor: new google.maps.Point((markerSize + 10) / 2, (markerSize + 10) / 2)
-          },
-          zIndex: 2000
-        })
+          const fallbackMarker = new google.maps.Marker({
+            position: cluster.position,
+            map: map,
+            title: activity.title,
+            icon: {
+              url: icon,
+              scaledSize: new google.maps.Size(markerSize, markerSize + 10),
+              anchor: new google.maps.Point(markerSize / 2, markerSize + 10)
+            },
+            zIndex: 1000
+          })
 
-        marker.addListener('click', () => {
-          if (map.getZoom()! < 16) {
-            // ズームイン
-            map.setZoom(map.getZoom()! + 2)
-            map.setCenter(cluster.position)
-          } else {
-            // クラスター詳細を表示
-            onClusterClick?.(cluster.activities)
-          }
-        })
+          fallbackMarker.addListener('click', () => {
+            onMarkerClick?.(activity)
+          })
 
-        const clusterData: MarkerCluster = {
-          position: cluster.position,
-          activities: cluster.activities,
-          marker
+          newMarkers.push(fallbackMarker as any)
         }
+      } else {
+        try {
+          // クラスターマーカー - Advanced Marker使用
+          const clusterIcon = createClusterIcon(cluster.activities.length, markerSize + 10)
 
-        newMarkers.push(marker)
-        newClusters.push(clusterData)
+          const markerElement = document.createElement('div')
+          markerElement.innerHTML = `<img src="${clusterIcon}" style="width: ${markerSize + 10}px; height: ${markerSize + 10}px; cursor: pointer;">`
+
+          const marker = await createAdvancedMarker(
+            cluster.position,
+            map!,
+            {
+              title: `${cluster.activities.length}件の活動`,
+              content: markerElement
+            }
+          )
+
+          marker.addListener('click', () => {
+            onClusterClick?.(cluster.activities)
+          })
+
+          newMarkers.push(marker)
+          newClusters.push({ ...cluster, marker: marker as any })
+        } catch (error) {
+          console.error('クラスターAdvanced Markerの作成に失敗:', error)
+          
+          // フォールバック
+          const clusterIcon = createClusterIcon(cluster.activities.length, markerSize + 10)
+
+          const fallbackMarker = new google.maps.Marker({
+            position: cluster.position,
+            map: map,
+            title: `${cluster.activities.length}件の活動`,
+            icon: {
+              url: clusterIcon,
+              scaledSize: new google.maps.Size(markerSize + 10, markerSize + 10),
+              anchor: new google.maps.Point((markerSize + 10) / 2, (markerSize + 10) / 2)
+            },
+            zIndex: 2000
+          })
+
+          fallbackMarker.addListener('click', () => {
+            onClusterClick?.(cluster.activities)
+          })
+
+          newMarkers.push(fallbackMarker as any)
+          newClusters.push({ ...cluster, marker: fallbackMarker })
+        }
       }
-    })
+    }
 
     setMarkers(newMarkers)
     setClusters(newClusters)

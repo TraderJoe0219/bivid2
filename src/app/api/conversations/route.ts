@@ -11,18 +11,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { getAuth } from 'firebase-admin/auth'
-import { initializeApp, cert, getApps } from 'firebase-admin/app'
-
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  })
-}
+import { admin } from '@/lib/firebaseAdmin'
 
 async function verifyAuthToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
@@ -32,7 +21,7 @@ async function verifyAuthToken(request: NextRequest) {
 
   try {
     const token = authHeader.split('Bearer ')[1]
-    const decodedToken = await getAuth().verifyIdToken(token)
+    const decodedToken = await admin.auth().verifyIdToken(token)
     return decodedToken.uid
   } catch (error) {
     console.error('Token verification failed:', error)
