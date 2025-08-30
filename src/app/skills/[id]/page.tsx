@@ -326,14 +326,14 @@ export default function SkillDetailPage() {
         await navigator.share({
           title: skill?.title,
           text: skill?.shortDescription || skill?.description,
-          url: window.location.href
+          url: typeof window !== 'undefined' ? window.location.href : ''
         })
       } catch (error) {
         console.error('Share error:', error)
       }
     } else {
       // フォールバック: クリップボードにコピー
-      await navigator.clipboard.writeText(window.location.href)
+      await navigator.clipboard.writeText(typeof window !== 'undefined' ? window.location.href : '')
       alert('リンクをクリップボードにコピーしました')
     }
   }

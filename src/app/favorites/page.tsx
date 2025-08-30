@@ -146,7 +146,7 @@ export default function FavoritesPage() {
         category: skill.category,
         rating: skill.rating.average,
         price: skill.pricing.amount,
-        url: `${window.location.origin}/skills/${skill.id}`
+        url: typeof window !== 'undefined' ? `${window.location.origin}/skills/${skill.id}` : `/skills/${skill.id}`
       }))
     }
 
@@ -172,7 +172,7 @@ export default function FavoritesPage() {
         await navigator.share({
           title: 'お気に入りスキル',
           text: shareText,
-          url: window.location.href
+          url: typeof window !== 'undefined' ? window.location.href : ''
         })
       } catch (error) {
         console.error('Share failed:', error)

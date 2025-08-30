@@ -203,11 +203,11 @@ export default function SkillList({
       navigator.share({
         title: skill.title,
         text: skill.shortDescription || skill.description,
-        url: window.location.origin + `/skills/${skill.id}`
+        url: typeof window !== 'undefined' ? window.location.origin + `/skills/${skill.id}` : `/skills/${skill.id}`
       })
     } else {
       // フォールバック: クリップボードにコピー
-      navigator.clipboard.writeText(window.location.origin + `/skills/${skill.id}`)
+      navigator.clipboard.writeText(typeof window !== 'undefined' ? window.location.origin + `/skills/${skill.id}` : `/skills/${skill.id}`)
       // TODO: トースト通知
       alert('リンクをクリップボードにコピーしました')
     }

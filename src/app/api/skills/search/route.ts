@@ -107,6 +107,8 @@ function buildTextSearchQuery(keyword: string, otherParams: SkillSearchParams) {
   return query(collection(db, 'skills'), ...constraints)
 }
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const urlParams = request.nextUrl.searchParams
