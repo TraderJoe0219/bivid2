@@ -172,7 +172,7 @@ export default function FavoritesPage() {
         await navigator.share({
           title: 'お気に入りスキル',
           text: shareText,
-          url: typeof window !== 'undefined' ? window.location.href : ''
+          url: typeof window !== 'undefined' ? window.location.href : `${process.env.NEXT_PUBLIC_BASE_URL || 'https://bivid.app'}/favorites`
         })
       } catch (error) {
         console.error('Share failed:', error)

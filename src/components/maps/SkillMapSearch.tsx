@@ -188,7 +188,7 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
         </div>
         <p class="text-sm text-gray-600">¥${provider.price}/回</p>
         ${provider.distance ? `<p class="text-sm text-gray-500">約${provider.distance.toFixed(1)}km</p>` : ''}
-        <button onclick="window.location.href='/skills/${provider.id}'" class="mt-2 bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
+        <button onclick="if(typeof window !== 'undefined') window.location.href='/skills/${provider.id}'" class="mt-2 bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
           詳細を見る
         </button>
       </div>

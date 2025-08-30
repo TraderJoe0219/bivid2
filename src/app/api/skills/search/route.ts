@@ -111,23 +111,23 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const urlParams = request.nextUrl.searchParams
+    const { searchParams } = new URL(request.url)
     
     // パラメータの解析
     const rawParams = {
-      keyword: urlParams.get('keyword') || '',
-      categories: urlParams.get('categories')?.split(',').filter(Boolean) || [],
-      locationType: urlParams.get('locationType')?.split(',').filter(Boolean) || [],
-      difficulty: urlParams.get('difficulty')?.split(',').filter(Boolean) || [],
-      priceRange: urlParams.get('priceMin') || urlParams.get('priceMax') ? {
-        min: urlParams.get('priceMin') ? parseInt(urlParams.get('priceMin')!) : undefined,
-        max: urlParams.get('priceMax') ? parseInt(urlParams.get('priceMax')!) : undefined,
+      keyword: searchParams.get('keyword') || '',
+      categories: searchParams.get('categories')?.split(',').filter(Boolean) || [],
+      locationType: searchParams.get('locationType')?.split(',').filter(Boolean) || [],
+      difficulty: searchParams.get('difficulty')?.split(',').filter(Boolean) || [],
+      priceRange: searchParams.get('priceMin') || searchParams.get('priceMax') ? {
+        min: searchParams.get('priceMin') ? parseInt(searchParams.get('priceMin')!) : undefined,
+        max: searchParams.get('priceMax') ? parseInt(searchParams.get('priceMax')!) : undefined,
       } : undefined,
-      rating: urlParams.get('rating') ? parseFloat(urlParams.get('rating')!) : undefined,
-      availability: urlParams.get('availability') || 'any',
-      sortBy: urlParams.get('sortBy') || 'relevance',
-      page: parseInt(urlParams.get('page') || '1'),
-      limit: parseInt(urlParams.get('limit') || '20'),
+      rating: searchParams.get('rating') ? parseFloat(searchParams.get('rating')!) : undefined,
+      availability: searchParams.get('availability') || 'any',
+      sortBy: searchParams.get('sortBy') || 'relevance',
+      page: parseInt(searchParams.get('page') || '1'),
+      limit: parseInt(searchParams.get('limit') || '20'),
     }
     
     // バリデーション

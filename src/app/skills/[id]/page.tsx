@@ -326,14 +326,14 @@ export default function SkillDetailPage() {
         await navigator.share({
           title: skill?.title,
           text: skill?.shortDescription || skill?.description,
-          url: typeof window !== 'undefined' ? window.location.href : ''
+          url: typeof window !== 'undefined' ? window.location.href : `${process.env.NEXT_PUBLIC_BASE_URL || 'https://bivid.app'}/skills/${skill?.id}`
         })
       } catch (error) {
         console.error('Share error:', error)
       }
     } else {
       // フォールバック: クリップボードにコピー
-      await navigator.clipboard.writeText(typeof window !== 'undefined' ? window.location.href : '')
+      await navigator.clipboard.writeText(window.location.href)
       alert('リンクをクリップボードにコピーしました')
     }
   }

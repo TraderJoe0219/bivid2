@@ -1,5 +1,5 @@
 import { headers } from 'next/headers'
-import { verifyIdToken } from './firebaseAdmin'
+import { admin, verifyIdToken } from './firebaseAdmin'
 
 export interface ServerUser {
   uid: string
