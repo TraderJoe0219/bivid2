@@ -236,3 +236,4 @@ export async function saveEmergencyContacts(userId: string, emergencyContacts: a
     return { error: '緊急連絡先の保存に失敗しました。' }
   }
 }
+

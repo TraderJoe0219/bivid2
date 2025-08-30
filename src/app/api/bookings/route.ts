@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
     const userId = searchParams.get('userId');
     const role = searchParams.get('role') as 'student' | 'teacher' || 'student';
 

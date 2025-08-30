@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       if (booking.status === 'pending') {
         await BookingService.updateBookingStatus(bookingId, 'confirmed');
       }
-    } else if (paymentIntent.status === 'payment_failed') {
+    } else if (paymentIntent.status === 'requires_payment_method' || paymentIntent.status === 'canceled') {
       await BookingService.updatePaymentStatus(bookingId, 'failed');
     }
 

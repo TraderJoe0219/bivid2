@@ -47,9 +47,11 @@ export default function DocumentUploadPage() {
       const safeDocumentUrl =
         (data as any)?.documentURL ??
         (data as any)?.documentUrl ??
-        (typeof documentURL === "string" ? documentURL : "") ??
         "";
-      await saveDocumentInfo(user.uid, data.documentType, safeDocumentUrl);
+      await saveDocumentInfo(user.uid, {
+        documentType: data.documentType,
+        documentUrl: safeDocumentUrl
+      });
 
       setSuccess('身分証明書を提出しました。確認までお時間をいただきます。')
 

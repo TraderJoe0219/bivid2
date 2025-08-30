@@ -319,6 +319,8 @@ export default function SkillDetailPage() {
 
   // 共有機能
   const handleShare = async () => {
+    if (typeof window === 'undefined') return
+
     if (navigator.share) {
       try {
         await navigator.share({

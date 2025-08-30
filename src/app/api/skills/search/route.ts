@@ -59,10 +59,10 @@ function buildFirestoreQuery(params: SkillSearchParams) {
   
   // ソート順
   switch (params.sortBy) {
-    case 'priceAsc':
+    case 'price_low':
       constraints.push(orderBy('pricePerHour', 'asc'))
       break
-    case 'priceDesc':
+    case 'price_high':
       constraints.push(orderBy('pricePerHour', 'desc'))
       break
     case 'rating':
@@ -109,7 +109,7 @@ function buildTextSearchQuery(keyword: string, otherParams: SkillSearchParams) {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams: urlParams } = new URL(request.url)
+    const urlParams = request.nextUrl.searchParams
     
     // パラメータの解析
     const rawParams = {
@@ -143,13 +143,13 @@ export async function GET(request: NextRequest) {
     const skills = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }))
+    })) as any[]
     
     // テキスト検索の場合は追加フィルタリング
     let filteredSkills = skills
     if (validatedParams.keyword && validatedParams.keyword.trim()) {
       const keyword = validatedParams.keyword.toLowerCase()
-      filteredSkills = skills.filter(skill => 
+      filteredSkills = skills.filter((skill: any) => 
         skill.title?.toLowerCase().includes(keyword) ||
         skill.description?.toLowerCase().includes(keyword) ||
         skill.teacherName?.toLowerCase().includes(keyword)

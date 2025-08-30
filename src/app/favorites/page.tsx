@@ -134,6 +134,8 @@ export default function FavoritesPage() {
 
   // エクスポート機能
   const handleExport = () => {
+    if (typeof window === 'undefined') return
+
     const exportData = {
       exportDate: new Date().toISOString(),
       totalCount: favorites.length,
@@ -161,6 +163,8 @@ export default function FavoritesPage() {
 
   // 共有機能
   const handleShare = async () => {
+    if (typeof window === 'undefined') return
+
     const shareText = `私のお気に入りスキル (${favorites.length}件)\n\n${favorites.slice(0, 3).map(skill => `• ${skill.title} by ${skill.teacher.name}`).join('\n')}\n\n他にも素敵なスキルがあります！`
     
     if (navigator.share) {
@@ -208,7 +212,7 @@ export default function FavoritesPage() {
             {!isLoading && favorites.length > 0 && (
               <div className="flex items-center space-x-2">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={handleExport}
                   className="flex items-center space-x-2"
@@ -218,7 +222,7 @@ export default function FavoritesPage() {
                 </Button>
                 
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={handleShare}
                   className="flex items-center space-x-2"
@@ -228,7 +232,7 @@ export default function FavoritesPage() {
                 </Button>
                 
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setShowClearConfirm(true)}
                   className="flex items-center space-x-2 text-red-600 hover:text-red-800"
@@ -296,7 +300,7 @@ export default function FavoritesPage() {
                   </div>
                   
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => setShowFilters(!showFilters)}
                     className="flex items-center space-x-2"
                   >
@@ -435,7 +439,7 @@ export default function FavoritesPage() {
             </p>
             <div className="flex justify-end space-x-3">
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => setShowClearConfirm(false)}
               >
                 キャンセル

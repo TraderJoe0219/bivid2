@@ -197,6 +197,8 @@ export default function SkillList({
 
   // 共有クリック
   const handleShareClick = useCallback((skill: Skill) => {
+    if (typeof window === 'undefined') return
+    
     if (navigator.share) {
       navigator.share({
         title: skill.title,

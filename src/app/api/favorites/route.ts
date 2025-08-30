@@ -1,28 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { auth } from '@/lib/firebase'
-import { admin } from '@/lib/firebaseAdmin'
-
-async function verifyAuthToken(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader?.startsWith('Bearer ')) {
-    return null
-  }
-
-  try {
-    const token = authHeader.split('Bearer ')[1]
-    const decodedToken = await admin.auth().verifyIdToken(token)
-    return decodedToken.uid
-  } catch (error) {
-    console.error('Token verification failed:', error)
-    return null
-  }
-}
+import { verifyAuth } from '@/lib/auth-server'
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = await verifyAuthToken(request)
+    const userId = await verifyAuth(request)
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -47,7 +30,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = await verifyAuthToken(request)
+    const userId = await verifyAuth(request)
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -80,13 +63,12 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const userId = await verifyAuthToken(request)
+    const userId = await verifyAuth(request)
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const skillId = searchParams.get('skillId')
+    const skillId = request.nextUrl.searchParams.get('skillId')
     
     if (!skillId) {
       return NextResponse.json({ error: 'Skill ID is required' }, { status: 400 })

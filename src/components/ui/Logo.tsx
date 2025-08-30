@@ -53,20 +53,19 @@ export const Logo: React.FC<LogoProps> = ({
         />
       ) : (
         <>
-          <Image
-            src="/logo-bivid.svg"
-            alt="Bivid"
-            width={sizes[size].width}
-            height={sizes[size].height}
-            className="logo-image shrink-0"
-            priority
-          />
+          <div className="flex items-center">
+            <span className={cn('font-bold', textSizes[size])} style={{ color: '#0071bc' }}>B</span>
+            <span className={cn('font-bold', textSizes[size])} style={{ color: '#0071bc' }}>i</span>
+            <span className={cn('font-bold', textSizes[size])} style={{ color: '#ed1e79' }}>v</span>
+            <span className={cn('font-bold', textSizes[size])} style={{ color: '#0071bc' }}>i</span>
+            <span className={cn('font-bold', textSizes[size])} style={{ color: '#0071bc' }}>D</span>
+          </div>
           {showSubtitle && variant !== 'compact' && (
             <span className={cn(
               'ml-3 font-medium text-elder-text-secondary',
               subtitleSizes[size]
             )}>
-              スキルシェア
+              ソーシャルマッチング
             </span>
           )}
         </>

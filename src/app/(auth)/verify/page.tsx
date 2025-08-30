@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import { PhoneVerification } from '@/components/auth/PhoneVerification'
 import { Loading } from '@/components/Loading'
 import type { PhoneVerificationFormData } from '@/lib/validations/auth'
 
-export default function VerifyPage() {
+function VerifyPageContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -177,5 +177,13 @@ export default function VerifyPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <VerifyPageContent />
+    </Suspense>
   )
 }

@@ -11,28 +11,12 @@ import {
   serverTimestamp
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { admin } from '@/lib/firebaseAdmin'
-
-async function verifyAuthToken(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader?.startsWith('Bearer ')) {
-    return null
-  }
-
-  try {
-    const token = authHeader.split('Bearer ')[1]
-    const decodedToken = await admin.auth().verifyIdToken(token)
-    return decodedToken.uid
-  } catch (error) {
-    console.error('Token verification failed:', error)
-    return null
-  }
-}
+import { verifyAuth } from '@/lib/auth-server'
 
 // 会話一覧を取得 (GET)
 export async function GET(request: NextRequest) {
   try {
-    const userId = await verifyAuthToken(request)
+    const userId = await verifyAuth(request)
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -62,7 +46,7 @@ export async function GET(request: NextRequest) {
 // 新しい会話を開始 (POST)
 export async function POST(request: NextRequest) {
   try {
-    const userId = await verifyAuthToken(request)
+    const userId = await verifyAuth(request)
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

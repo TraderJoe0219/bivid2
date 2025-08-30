@@ -1,27 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { admin } from '@/lib/firebaseAdmin'
+import { verifyAuth } from '@/lib/auth-server'
 
-async function verifyAuthToken(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader?.startsWith('Bearer ')) {
-    return null
-  }
-
-  try {
-    const token = authHeader.split('Bearer ')[1]
-    const decodedToken = await admin.auth().verifyIdToken(token)
-    return decodedToken.uid
-  } catch (error) {
-    console.error('Token verification failed:', error)
-    return null
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = await verifyAuthToken(request)
+    const userId = await verifyAuth(request)
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

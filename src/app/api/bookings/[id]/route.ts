@@ -122,7 +122,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = params;
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
     const reason = searchParams.get('reason') || 'ユーザーによるキャンセル';
     
     // 認証チェック

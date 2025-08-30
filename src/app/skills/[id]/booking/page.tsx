@@ -22,6 +22,7 @@ import { Skill } from '@/types/skill'
 import { PaymentForm } from '@/components/booking/PaymentForm'
 import { PaymentMethod } from '@/types/booking'
 import { Loading } from '@/components/Loading'
+import { SkillCategory } from '@/types/skill'
 
 // モックデータ - 実際の実装ではAPIから取得（スキル詳細ページと同じデータを使用）
 const getMockSkill = (id: string): Skill | null => {
@@ -31,9 +32,10 @@ const getMockSkill = (id: string): Skill | null => {
       title: '初心者向けお料理教室',
       shortDescription: '包丁の持ち方から始める、お料理の基礎を楽しく学べます',
       description: 'お料理が初めての方でも安心して参加いただける、基礎的なお料理教室です。',
-      category: 'cooking',
+      category: SkillCategory.COOKING,
       difficulty: 'beginner',
       pricing: {
+        type: 'per_session',
         amount: 3500,
         currency: 'JPY',
         unit: '回'
@@ -41,11 +43,14 @@ const getMockSkill = (id: string): Skill | null => {
       duration: {
         typical: 120,
         minimum: 90,
-        maximum: 150
+        maximum: 150,
+        flexible: true
       },
       capacity: {
         maxStudents: 6,
-        currentBookings: 2
+        minStudents: 1,
+        currentBookings: 2,
+        waitingList: 0
       },
       location: {
         type: 'offline',
@@ -56,17 +61,20 @@ const getMockSkill = (id: string): Skill | null => {
         }
       },
       teacher: {
-        id: 'teacher1',
+        id: '1',
         name: '田中 花子',
+        displayName: '田中 花子',
         photoURL: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
         bio: '料理歴30年、元料理教室講師です。',
         location: '世田谷区',
+        joinedDate: new Date('2020-01-01'),
         teachingExperience: 8,
         specialties: ['家庭料理', '和食', '健康料理'],
         languages: ['日本語'],
         rating: {
           average: 4.8,
-          count: 142
+          count: 24,
+          asTeacher: 4.8
         },
         verificationStatus: {
           isEmailVerified: true,
@@ -85,9 +93,11 @@ const getMockSkill = (id: string): Skill | null => {
       materials: [],
       tags: [],
       statistics: {
+        viewCount: 1240,
+        favoriteCount: 89,
         bookingCount: 156,
-        favoriteCount: 42,
-        viewCount: 1248
+        completionRate: 95,
+        repeatCustomerRate: 78
       },
       isAvailableForBooking: true,
       createdAt: new Date('2023-12-01'),
@@ -389,7 +399,7 @@ export default function SkillBookingPage() {
                       </h3>
                       <div className="flex space-x-2">
                         <Button
-                          variant="outline"
+                          variant="secondary"
                           size="sm"
                           onClick={() => {
                             const newMonth = new Date(selectedMonth)
@@ -400,7 +410,7 @@ export default function SkillBookingPage() {
                           <ChevronLeft className="w-4 h-4" />
                         </Button>
                         <Button
-                          variant="outline"
+                          variant="secondary"
                           size="sm"
                           onClick={() => {
                             const newMonth = new Date(selectedMonth)
@@ -600,7 +610,7 @@ export default function SkillBookingPage() {
                       予約一覧を見る
                     </Button>
                     <Button 
-                      variant="outline" 
+                      variant="secondary" 
                       onClick={() => router.push(`/skills/${skillId}/review`)} 
                       className="w-full"
                     >
@@ -617,7 +627,7 @@ export default function SkillBookingPage() {
               {currentStep !== 'confirmation' && (
                 <div className="mt-8 flex justify-between">
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     onClick={handlePrevStep}
                     disabled={currentStep === 'datetime'}
                   >

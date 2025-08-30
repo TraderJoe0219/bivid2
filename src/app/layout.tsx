@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 import { Navigation } from '@/components/layout/Navigation'
 import './globals.css'
@@ -27,10 +27,10 @@ export const metadata: Metadata = {
   }
 }
 
-export const viewport = {
+export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  userScalable: 'yes',
+  userScalable: true,
 }
 
 export default function RootLayout({

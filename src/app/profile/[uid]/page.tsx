@@ -90,7 +90,7 @@ export default function UserProfilePage() {
             </h2>
             <p className="text-gray-600 mb-4">{error}</p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => typeof window !== 'undefined' && window.location.reload()}
               className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
             >
               再読み込み

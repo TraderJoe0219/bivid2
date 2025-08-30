@@ -12,33 +12,18 @@ import {
   serverTimestamp
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { admin } from '@/lib/firebaseAdmin'
+import { verifyAuth } from '@/lib/auth-server'
 
-async function verifyAuthToken(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader?.startsWith('Bearer ')) {
-    return null
-  }
-
-  try {
-    const token = authHeader.split('Bearer ')[1]
-    const decodedToken = await admin.auth().verifyIdToken(token)
-    return decodedToken.uid
-  } catch (error) {
-    console.error('Token verification failed:', error)
-    return null
-  }
-}
 
 // メッセージ一覧を取得 (GET)
 export async function GET(request: NextRequest) {
   try {
-    const userId = await verifyAuthToken(request)
+    const userId = await verifyAuth(request)
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url)
+    const searchParams = request.nextUrl.searchParams
     const conversationId = searchParams.get('conversationId')
     const limitCount = parseInt(searchParams.get('limit') || '50')
 
@@ -86,7 +71,7 @@ export async function GET(request: NextRequest) {
 // メッセージを送信 (POST)
 export async function POST(request: NextRequest) {
   try {
-    const userId = await verifyAuthToken(request)
+    const userId = await verifyAuth(request)
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
