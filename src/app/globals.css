@@ -62,16 +62,16 @@
   }
 
   .btn-primary {
-    @apply btn bg-elder-interactive-primary text-white border-elder-interactive-primary
-           hover:bg-elder-interactive-hover hover:border-elder-interactive-hover
-           focus-visible:ring-elder-interactive-primary
-           active:bg-elder-interactive-active active:border-elder-interactive-active;
+    @apply btn bg-bivid-blue text-white border-bivid-blue
+           hover:bg-bivid-blue-600 hover:border-bivid-blue-600
+           focus-visible:ring-bivid-blue
+           active:bg-bivid-blue-700 active:border-bivid-blue-700;
   }
 
   .btn-secondary {
-    @apply btn bg-elder-bg-primary text-elder-text-primary border-elder-border-strong
-           hover:bg-elder-bg-accent hover:border-elder-interactive-primary
-           focus-visible:ring-elder-interactive-primary;
+    @apply btn bg-white text-bivid-blue border-bivid-blue-300
+           hover:bg-bivid-blue-50 hover:border-bivid-blue
+           focus-visible:ring-bivid-blue;
   }
 
   .btn-success {
@@ -126,13 +126,27 @@
   .nav-link {
     @apply inline-flex items-center px-4 py-2 text-base font-medium rounded-elder
            text-elder-text-secondary transition-colors duration-200
-           hover:text-elder-interactive-primary hover:bg-elder-bg-accent
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-elder-interactive-primary;
+           hover:text-bivid-blue hover:bg-bivid-blue-50
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bivid-blue;
   }
 
   .nav-link-active {
-    @apply nav-link text-elder-interactive-primary bg-elder-bg-accent
-           border-b-2 border-elder-interactive-primary;
+    @apply nav-link text-bivid-blue bg-bivid-blue-100
+           border-b-2 border-bivid-blue;
+  }
+
+  /* ロゴ専用スタイル */
+  .logo-link {
+    @apply no-underline hover:no-underline focus-visible:no-underline;
+    @apply text-current hover:text-current focus-visible:text-current;
+    @apply transition-opacity duration-200 hover:opacity-80;
+  }
+
+  /* Next.js Image最適化でのロゴ表示 */
+  .logo-image {
+    @apply select-none;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
   }
 
   /* ユーティリティクラス */

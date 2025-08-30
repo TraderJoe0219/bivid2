@@ -21,37 +21,70 @@ module.exports = {
           900: '#792b12',
           950: '#411309',
         },
-        // 高齢者向けアクセシブルカラーパレット
+        // Bividブランドカラーパレット（ロゴベース）
+        bivid: {
+          // ロゴ由来のメインカラー
+          'blue': '#0071bc',        // ロゴのプライマリブルー
+          'pink': '#ed1e79',        // ロゴのアクセントピンク
+          'white': '#ffffff',       // ロゴのハイライト
+
+          // ブルー系グラデーション
+          'blue-50': '#f0f9ff',
+          'blue-100': '#e0f2fe', 
+          'blue-200': '#bae6fd',
+          'blue-300': '#7dd3fc',
+          'blue-400': '#38bdf8',
+          'blue-500': '#0071bc',     // メイン
+          'blue-600': '#0053a3',
+          'blue-700': '#003d7a',
+          'blue-800': '#1e3a8a',
+          'blue-900': '#1e40af',
+
+          // ピンク系グラデーション
+          'pink-50': '#fdf2f8',
+          'pink-100': '#fce7f3',
+          'pink-200': '#fbcfe8',
+          'pink-300': '#f9a8d4',
+          'pink-400': '#f472b6',
+          'pink-500': '#ed1e79',     // メイン
+          'pink-600': '#db2777',
+          'pink-700': '#be185d',
+          'pink-800': '#9d174d',
+          'pink-900': '#831843',
+        },
+        
+        // 高齢者向けアクセシブルカラーパレット（Bividテーマ適用）
         elder: {
           // 背景色（高コントラスト）
           'bg-primary': '#ffffff',
-          'bg-secondary': '#f8fafc',
-          'bg-accent': '#f1f5f9',
+          'bg-secondary': '#f0f9ff',      // bivid-blue-50
+          'bg-accent': '#e0f2fe',         // bivid-blue-100
           
           // テキストカラー（AAA規格対応）
           'text-primary': '#1a202c',
           'text-secondary': '#2d3748',
           'text-muted': '#4a5568',
           
-          // ブランドカラー（高コントラスト）
-          'brand-primary': '#d97706',    // オレンジ
-          'brand-secondary': '#0369a1',  // ブルー
+          // ブランドカラー（Bividロゴベース）
+          'brand-primary': '#0071bc',     // bivid-blue
+          'brand-secondary': '#ed1e79',   // bivid-pink
+          'accent': '#ed1e79',            // bivid-pink
           
-          // 状態カラー（高コントラスト）
+          // 状態カラー（Bividテーマ調整）
           'success': '#059669',
-          'warning': '#d97706',
+          'warning': '#f59e0b',
           'error': '#dc2626',
-          'info': '#0369a1',
+          'info': '#0071bc',              // bivid-blue
           
-          // ボーダー・区切り線
-          'border-light': '#e2e8f0',
-          'border-medium': '#cbd5e0',
-          'border-strong': '#a0aec0',
+          // ボーダー・区切り線（ブルー基調）
+          'border-light': '#bae6fd',      // bivid-blue-200
+          'border-medium': '#7dd3fc',     // bivid-blue-300
+          'border-strong': '#38bdf8',     // bivid-blue-400
           
-          // インタラクティブ要素
-          'interactive-primary': '#d97706',
-          'interactive-hover': '#b45309',
-          'interactive-active': '#92400e',
+          // インタラクティブ要素（Bividカラー）
+          'interactive-primary': '#0071bc',    // bivid-blue
+          'interactive-hover': '#0053a3',      // bivid-blue-600
+          'interactive-active': '#003d7a',     // bivid-blue-700
           'interactive-disabled': '#9ca3af',
         }
       },

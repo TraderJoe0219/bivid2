@@ -10,16 +10,17 @@ export default function HomePage() {
   const { user } = useAuthStore()
 
   return (
-    <div className="min-h-screen bg-elder-bg-secondary">{/* Navigation コンポーネントがレイアウトで管理されているのでヘッダーは削除 */}
+    <div className="min-h-screen bg-gradient-to-br from-bivid-blue-50 to-bivid-pink-50">
+      {/* Navigation コンポーネントがレイアウトで管理されているのでヘッダーは削除 */}
 
       {/* メインコンテンツ */}
       <main>
         {/* ヒーローセクション */}
-        <section className="section-spacing bg-elder-bg-primary">
+        <section className="section-spacing bg-gradient-to-r from-white via-bivid-blue-50 to-white">
           <div className="container-elder text-center">
             <h1 className="text-hero text-elder-text-primary mb-8">
               人生経験を活かして<br />
-              <span className="text-elder-brand-primary">新しいこと</span>を学びませんか？
+              <span className="text-bivid-blue">新しいこと</span>を学びませんか？
             </h1>
             <p className="text-xl text-elder-text-secondary mb-12 max-w-4xl mx-auto leading-relaxed">
               Bividは、豊富な人生経験を持つ方々が互いにスキルを教え合い、<br className="hidden sm:inline" />
@@ -28,14 +29,14 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center max-w-2xl mx-auto">
               <Link 
                 href="/skills/search"
-                className="btn-primary text-xl px-10 py-5 min-h-touch-xl gap-3 w-full sm:w-auto"
+                className="bg-bivid-blue hover:bg-bivid-blue-600 text-white font-semibold text-xl px-10 py-5 min-h-touch-xl gap-3 w-full sm:w-auto rounded-elder-lg shadow-elder-md hover:shadow-elder-lg transition-all duration-200 focus-outline"
               >
                 <Search className="w-7 h-7" />
                 <span>スキルを探す</span>
               </Link>
               <Link 
                 href="/teach"
-                className="btn-secondary text-xl px-10 py-5 min-h-touch-xl gap-3 w-full sm:w-auto"
+                className="bg-bivid-pink hover:bg-bivid-pink-600 text-white font-semibold text-xl px-10 py-5 min-h-touch-xl gap-3 w-full sm:w-auto rounded-elder-lg shadow-elder-md hover:shadow-elder-lg transition-all duration-200 focus-outline"
               >
                 <BookOpen className="w-7 h-7" />
                 <span>教える</span>
@@ -45,7 +46,7 @@ export default function HomePage() {
         </section>
 
         {/* 特徴セクション */}
-        <section className="section-spacing bg-elder-bg-secondary">
+        <section className="section-spacing bg-gradient-to-b from-bivid-blue-50 to-white">
           <div className="container-elder">
             <h2 className="text-heading text-center text-elder-text-primary mb-16">
               Bividの特徴
@@ -53,7 +54,7 @@ export default function HomePage() {
             <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
               <Card variant="hover" className="text-center">
                 <CardHeader>
-                  <div className="w-20 h-20 bg-elder-brand-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-bivid-blue to-bivid-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-elder-md">
                     <Users className="w-10 h-10 text-white" />
                   </div>
                   <CardTitle as="h3" className="text-subheading">安心のコミュニティ</CardTitle>
@@ -68,7 +69,7 @@ export default function HomePage() {
               
               <Card variant="hover" className="text-center">
                 <CardHeader>
-                  <div className="w-20 h-20 bg-elder-success rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-bivid-pink to-bivid-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-elder-md">
                     <BookOpen className="w-10 h-10 text-white" />
                   </div>
                   <CardTitle as="h3" className="text-subheading">豊富なスキル</CardTitle>
@@ -83,7 +84,7 @@ export default function HomePage() {
               
               <Card variant="hover" className="text-center">
                 <CardHeader>
-                  <div className="w-20 h-20 bg-elder-error rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-bivid-blue-400 to-bivid-pink rounded-full flex items-center justify-center mx-auto mb-6 shadow-elder-md">
                     <Heart className="w-10 h-10 text-white" />
                   </div>
                   <CardTitle as="h3" className="text-subheading">つながりを大切に</CardTitle>
@@ -100,7 +101,7 @@ export default function HomePage() {
         </section>
 
         {/* おすすめスキル */}
-        <section className="section-spacing bg-elder-bg-primary">
+        <section className="section-spacing bg-white">
           <div className="container-elder">
             <h2 className="text-heading text-center text-elder-text-primary mb-16">
               おすすめのスキル
@@ -113,7 +114,7 @@ export default function HomePage() {
                     alt="初心者向けお料理教室"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-3 left-3 bg-elder-brand-primary text-white px-3 py-1 rounded-full text-sm font-medium">
+                  <div className="absolute top-3 left-3 bg-bivid-blue text-white px-3 py-1 rounded-full text-sm font-medium shadow-elder">
                     料理
                   </div>
                 </div>
@@ -143,7 +144,7 @@ export default function HomePage() {
                     alt="ベランダでできる簡単ガーデニング"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-3 left-3 bg-elder-success text-white px-3 py-1 rounded-full text-sm font-medium">
+                  <div className="absolute top-3 left-3 bg-bivid-pink text-white px-3 py-1 rounded-full text-sm font-medium shadow-elder">
                     園芸
                   </div>
                 </div>
@@ -166,7 +167,7 @@ export default function HomePage() {
                 </div>
               </Link>
 
-              <Link href="/map" className="card-interactive group bg-gradient-to-br from-elder-brand-primary to-elder-interactive-primary text-white">
+              <Link href="/map" className="card-interactive group bg-gradient-to-br from-bivid-blue via-bivid-blue-600 to-bivid-pink text-white shadow-elder-lg">
                 <div className="p-8 text-center">
                   <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Search className="w-8 h-8" />
@@ -188,7 +189,7 @@ export default function HomePage() {
             <div className="text-center">
               <Link 
                 href="/skills/search"
-                className="btn-secondary text-lg px-8 py-4 min-h-touch-xl gap-2"
+                className="bg-bivid-blue hover:bg-bivid-blue-600 text-white font-semibold text-lg px-8 py-4 min-h-touch-xl gap-2 rounded-elder-lg shadow-elder-md hover:shadow-elder-lg transition-all duration-200 focus-outline"
               >
                 <span>すべてのスキルを見る</span>
                 <ArrowRight className="w-5 h-5" />
@@ -198,7 +199,7 @@ export default function HomePage() {
         </section>
 
         {/* 人気のスキルカテゴリ */}
-        <section className="section-spacing bg-elder-bg-secondary">
+        <section className="section-spacing bg-gradient-to-t from-bivid-pink-50 to-white">
           <div className="container-elder">
             <h2 className="text-heading text-center text-elder-text-primary mb-16">
               カテゴリから探す
@@ -233,11 +234,11 @@ export default function HomePage() {
       </main>
 
       {/* フッター */}
-      <footer className="bg-elder-text-primary text-white py-16">
+      <footer className="bg-gradient-to-r from-bivid-blue-900 via-bivid-blue-800 to-bivid-pink-900 text-white py-16">
         <div className="container-elder">
           <div className="grid md:grid-cols-3 gap-12">
             <div>
-              <h3 className="text-2xl font-bold mb-6 text-elder-brand-primary">Bivid</h3>
+              <h3 className="text-2xl font-bold mb-6 text-bivid-pink-300">Bivid</h3>
               <p className="text-gray-300 text-lg leading-relaxed">
                 高齢者向けスキルシェアプラットフォーム
               </p>

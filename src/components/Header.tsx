@@ -6,6 +6,7 @@ import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { useAuthStore } from '@/store/authStore'
 import { LogOut, User, Search, BookOpen } from 'lucide-react'
+import { Logo } from '@/components/ui/Logo'
 
 export default function Header() {
   const { isAuthenticated, userProfile } = useAuth()
@@ -25,10 +26,7 @@ export default function Header() {
       <div className="container-elder">
         <div className="flex items-center justify-between h-20">
           {/* ロゴ */}
-          <Link href="/" className="flex items-center">
-            <h1 className="text-3xl font-bold text-elder-accent">Bivid</h1>
-            <span className="ml-3 text-lg text-gray-600">スキルシェア</span>
-          </Link>
+          <Logo size="lg" showSubtitle={true} />
 
           {/* ナビゲーション */}
           <nav className="nav-elder">

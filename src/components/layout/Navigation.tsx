@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, Home, Search, Map, LogIn, UserPlus, User, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/ui/Logo';
 
 export const Navigation: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,15 +39,12 @@ export const Navigation: React.FC = () => {
       ];
 
   return (
-    <nav className="bg-elder-bg-primary shadow-elder border-b border-elder-border-light">
+    <nav className="bg-gradient-to-r from-white via-bivid-blue-50 to-white shadow-elder-md border-b border-bivid-blue-200">
       <div className="container-elder">
         <div className="flex justify-between h-20">
           {/* ロゴ */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center focus-outline rounded-elder">
-              <span className="text-3xl font-bold text-elder-brand-primary">Bivid</span>
-              <span className="ml-3 text-base text-elder-text-secondary">スキルシェアでつながる</span>
-            </Link>
+            <Logo size="lg" showSubtitle={true} />
           </div>
 
           {/* デスクトップメニュー */}
@@ -102,7 +100,7 @@ export const Navigation: React.FC = () => {
                   </Link>
                   <Link
                     href="/signup"
-                    className="btn-primary"
+                    className="bg-bivid-pink hover:bg-bivid-pink-600 text-white font-semibold px-6 py-3 rounded-elder-lg shadow-elder hover:shadow-elder-md transition-all duration-200 focus-outline min-h-touch inline-flex items-center justify-center"
                   >
                     <UserPlus className="w-5 h-5 mr-2" />
                     新規登録
@@ -189,7 +187,7 @@ export const Navigation: React.FC = () => {
                     <Link
                       href="/signup"
                       onClick={() => setIsOpen(false)}
-                      className="btn-primary w-full justify-center mt-3"
+                      className="bg-bivid-pink hover:bg-bivid-pink-600 text-white font-semibold px-6 py-3 rounded-elder-lg shadow-elder hover:shadow-elder-md transition-all duration-200 focus-outline min-h-touch w-full justify-center mt-3 inline-flex items-center"
                     >
                       <UserPlus className="w-6 h-6 mr-3" />
                       新規登録

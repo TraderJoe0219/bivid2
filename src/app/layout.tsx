@@ -8,7 +8,29 @@ export const metadata: Metadata = {
   description: '高齢者同士でスキルを共有し、学び合うプラットフォーム。アクセシブルで使いやすいデザインで、様々なスキルを学び、教えることができます。',
   keywords: ['スキルシェア', '高齢者', '学習', 'コミュニティ', 'アクセシビリティ'],
   authors: [{ name: 'Bivid Team' }],
-  viewport: 'width=device-width, initial-scale=1, user-scalable=yes',
+  icons: {
+    icon: [
+      { url: '/images/bivid-icon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/images/bivid-icon.png', sizes: '16x16', type: 'image/png' }
+    ],
+    apple: [
+      { url: '/images/bivid-icon.png', sizes: '180x180', type: 'image/png' }
+    ],
+    shortcut: '/images/bivid-icon.png'
+  },
+  openGraph: {
+    title: 'Bivid - 高齢者向けスキルシェアプラットフォーム',
+    description: '高齢者同士でスキルを共有し、学び合うプラットフォーム',
+    images: ['/images/bivid-logo-large.svg'],
+    locale: 'ja_JP',
+    type: 'website'
+  }
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  userScalable: 'yes',
 }
 
 export default function RootLayout({
