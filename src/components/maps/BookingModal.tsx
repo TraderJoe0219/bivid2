@@ -94,6 +94,7 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
           contactEmail,
           contactPhone,
           specialRequests: specialRequests.trim() || undefined,
+          paymentMethod,
           totalAmount
         };
 
