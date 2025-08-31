@@ -108,10 +108,12 @@ function buildTextSearchQuery(keyword: string, otherParams: SkillSearchParams) {
 }
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const url = new URL(request.url)
+    const searchParams = url.searchParams
     
     // パラメータの解析
     const rawParams = {
