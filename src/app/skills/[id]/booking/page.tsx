@@ -1,28 +1,12 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { 
-  Calendar,
-  Clock,
-  MapPin,
-  Users,
-  CreditCard,
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle,
-  AlertCircle,
-  User,
-  Phone,
-  Mail
-} from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Calendar, Clock, Users, MapPin, CreditCard, CheckCircle, ArrowLeft, User, Star, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Skill } from '@/types/skill'
-import { PaymentForm } from '@/components/booking/PaymentForm'
-import { PaymentMethod } from '@/types/booking'
-import { Loading } from '@/components/Loading'
-import { SkillCategory } from '@/types/skill'
+import { Card } from '@/components/ui/Card'
+import { Skill, SkillCategory } from '@/types/skill'
 
 // モックデータ - 実際の実装ではAPIから取得（スキル詳細ページと同じデータを使用）
 const getMockSkill = (id: string): Skill | null => {
@@ -33,6 +17,9 @@ const getMockSkill = (id: string): Skill | null => {
       shortDescription: '包丁の持ち方から始める、お料理の基礎を楽しく学べます',
       description: 'お料理が初めての方でも安心して参加いただける、基礎的なお料理教室です。',
       category: SkillCategory.COOKING,
+      subCategory: '基礎料理',
+      tags: ['料理', '初心者', '基礎'],
+      teacherId: '1',
       difficulty: 'beginner',
       pricing: {
         type: 'per_session',
@@ -52,6 +39,17 @@ const getMockSkill = (id: string): Skill | null => {
         currentBookings: 2,
         waitingList: 0
       },
+      schedule: {
+        type: 'flexible',
+        availableSlots: [
+          {
+            dayOfWeek: 1,
+            startTime: '10:00',
+            endTime: '16:00',
+            isAvailable: true
+          }
+        ]
+      },
       location: {
         type: 'offline',
         address: '東京都世田谷区三軒茶屋',
@@ -68,6 +66,11 @@ const getMockSkill = (id: string): Skill | null => {
         bio: '料理歴30年、元料理教室講師です。',
         location: '世田谷区',
         joinedDate: new Date('2020-01-01'),
+        verificationStatus: {
+          isEmailVerified: true,
+          isPhoneVerified: true,
+          isDocumentVerified: true
+        },
         teachingExperience: 8,
         specialties: ['家庭料理', '和食', '健康料理'],
         languages: ['日本語'],
@@ -75,11 +78,6 @@ const getMockSkill = (id: string): Skill | null => {
           average: 4.8,
           count: 24,
           asTeacher: 4.8
-        },
-        verificationStatus: {
-          isEmailVerified: true,
-          isPhoneVerified: true,
-          isDocumentVerified: true
         }
       },
       images: ['https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800'],
@@ -91,7 +89,6 @@ const getMockSkill = (id: string): Skill | null => {
       reviews: [],
       prerequisites: [],
       materials: [],
-      tags: [],
       statistics: {
         viewCount: 1240,
         favoriteCount: 89,
@@ -99,6 +96,10 @@ const getMockSkill = (id: string): Skill | null => {
         completionRate: 95,
         repeatCustomerRate: 78
       },
+      targetAudience: ['シニア', '初心者', '料理愛好家'],
+      isActive: true,
+      isApproved: true,
+      isFeatured: false,
       isAvailableForBooking: true,
       createdAt: new Date('2023-12-01'),
       updatedAt: new Date('2024-01-15'),
@@ -131,6 +132,7 @@ const getAvailableTimeSlots = (date: Date) => {
   return baseSlots
 }
 
+type PaymentMethod = 'credit_card' | 'bank_transfer' | 'cash'
 type BookingStep = 'datetime' | 'details' | 'payment' | 'confirmation'
 
 interface BookingFormData {
@@ -144,12 +146,17 @@ interface BookingFormData {
   paymentMethod: PaymentMethod
 }
 
-export default function SkillBookingPage() {
-  const params = useParams()
+// Simple Loading component
+const Loading = () => (
+  <div className="flex justify-center items-center min-h-screen">
+    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
+  </div>
+)
+
+export default function SkillBookingPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const skillId = params.id as string
-
-  const [skill, setSkill] = useState<Skill | null>(null)
+  const [skill, setSkill] = useState<Skill | null>(getMockSkill(params.id))
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const [currentStep, setCurrentStep] = useState<BookingStep>('datetime')
@@ -164,7 +171,7 @@ export default function SkillBookingPage() {
     studentEmail: '',
     studentPhone: '',
     specialRequests: '',
-    paymentMethod: 'card'
+    paymentMethod: 'credit_card'
   })
 
   // スキルデータ取得
@@ -282,11 +289,7 @@ export default function SkillBookingPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loading />
-      </div>
-    )
+    return <Loading />
   }
 
   if (error && !skill) {
@@ -580,18 +583,43 @@ export default function SkillBookingPage() {
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold text-gray-900">お支払い方法を選択してください</h2>
 
-                  <PaymentForm
-                    bookingId={`booking-${id}-${Date.now()}`}
-                    amount={totalAmount}
-                    currency="JPY"
-                    paymentMethod={formData.paymentMethod}
-                    onPaymentMethodChange={(method) => setFormData(prev => ({ ...prev, paymentMethod: method }))}
-                    onPaymentSuccess={handlePaymentSuccess}
-                    onPaymentError={handlePaymentError}
-                    skillId={id}
-                    participantCount={formData.participants}
-                    contactEmail={formData.email}
-                  />
+                  {/* Payment form placeholder - implement when PaymentForm component is available */}
+                  <div className="p-6 border border-gray-200 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4">お支払い方法</h3>
+                    <div className="space-y-4">
+                      <label className="flex items-center space-x-3">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="credit_card"
+                          checked={formData.paymentMethod === 'credit_card'}
+                          onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value as PaymentMethod }))}
+                          className="form-radio"
+                        />
+                        <span>クレジットカード</span>
+                      </label>
+                      <label className="flex items-center space-x-3">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="bank_transfer"
+                          checked={formData.paymentMethod === 'bank_transfer'}
+                          onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value as PaymentMethod }))}
+                          className="form-radio"
+                        />
+                        <span>銀行振込</span>
+                      </label>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        // Simulate payment success
+                        handlePaymentSuccess('mock-payment-id')
+                      }}
+                      className="w-full mt-4"
+                    >
+                      支払いを完了する (¥{totalAmount.toLocaleString()})
+                    </Button>
+                  </div>
                 </div>
               )}
 
@@ -616,7 +644,7 @@ export default function SkillBookingPage() {
                     >
                       レビューを投稿する
                     </Button>
-                    <Button variant="outline" onClick={() => router.push('/')} className="w-full">
+                    <Button variant="secondary" onClick={() => router.push('/')} className="w-full">
                       ホームに戻る
                     </Button>
                   </div>

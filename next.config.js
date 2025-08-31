@@ -1,12 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    // 一時的に型チェックを無効化してデプロイを優先
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // ESLintエラーを一時的に無視
-    ignoreDuringBuilds: true,
+  experimental: {
+    serverComponentsExternalPackages: ['firebase-admin'],
+    outputFileTracingIncludes: {
+      '/api/**/*': ['./node_modules/**/*.wasm', './node_modules/**/*.node'],
+    },
   },
   // 画像最適化の設定
   images: {
@@ -66,20 +64,24 @@ const nextConfig = {
       }
     }
 
-    // SVG処理の設定
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ['@svgr/webpack']
-    })
-
-    // ファイルシステム関連のモジュールを外部化（サーバーサイドのみ）
+    // サーバーサイドでの大きな依存関係の外部化
     if (isServer) {
       config.externals = config.externals || []
       config.externals.push({
         'utf-8-validate': 'commonjs utf-8-validate',
         'bufferutil': 'commonjs bufferutil',
+        '@next/swc-linux-x64-musl': 'commonjs @next/swc-linux-x64-musl',
+        '@next/swc-linux-x64-gnu': 'commonjs @next/swc-linux-x64-gnu',
+        're2': 'commonjs re2',
+        '@electric-sql/pglite': 'commonjs @electric-sql/pglite',
       })
     }
+
+    // SVG処理の設定
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack']
+    })
 
     return config
   },

@@ -3,16 +3,19 @@ import { admin } from './firebaseAdmin'
 
 export async function verifyAuth(request: NextRequest): Promise<string | null> {
   const authHeader = request.headers.get('authorization')
-  if (!authHeader?.startsWith('Bearer ')) {
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null
   }
 
+  const token = authHeader.substring(7)
+  
   try {
-    const token = authHeader.split('Bearer ')[1]
-    const decodedToken = await admin.auth().verifyIdToken(token)
+    const adminInstance = await admin()
+    const decodedToken = await adminInstance.auth().verifyIdToken(token)
     return decodedToken.uid
   } catch (error) {
-    console.error('Token verification failed:', error)
+    console.error('Auth verification failed:', error)
     return null
   }
 }

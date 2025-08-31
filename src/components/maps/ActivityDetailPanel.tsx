@@ -60,8 +60,8 @@ export function ActivityDetailPanel({
 
   // レビュー表示制限
   const displayedReviews = showAllReviews 
-    ? activity.reviews || []
-    : (activity.reviews || []).slice(0, 3);
+    ? [] // activity.reviews || []
+    : []; // (activity.reviews || []).slice(0, 3);
 
   // 料金表示
   const formatPrice = (price: number) => {
@@ -152,9 +152,9 @@ export function ActivityDetailPanel({
               {activity.category}
             </span>
             <div className="flex items-center space-x-1">
-              {renderStars(activity.rating)}
+              {renderStars(activity.rating?.average || 0)}
               <span className="ml-2 text-sm text-gray-600">
-                ({activity.reviewCount || 0}件)
+                ({activity.rating?.count || 0}件)
               </span>
             </div>
           </div>
@@ -171,7 +171,7 @@ export function ActivityDetailPanel({
               <Calendar className="w-5 h-5 text-gray-400" />
               <div>
                 <div className="text-sm text-gray-500">開催日時</div>
-                <div className="font-medium">{activity.date}</div>
+                <div className="font-medium">日程調整中</div>
               </div>
             </div>
             
@@ -187,7 +187,7 @@ export function ActivityDetailPanel({
               <Users className="w-5 h-5 text-gray-400" />
               <div>
                 <div className="text-sm text-gray-500">定員</div>
-                <div className="font-medium">{activity.capacity}名</div>
+                <div className="font-medium">{activity.maxStudents}名</div>
               </div>
             </div>
             
@@ -204,79 +204,41 @@ export function ActivityDetailPanel({
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <span className="text-lg font-semibold text-gray-800">参加費</span>
-              <span className="text-2xl font-bold text-orange-600">
-                {formatPrice(activity.price)}
-              </span>
+              <span className="text-2xl font-bold text-blue-600">{formatPrice(activity.price?.amount || 0)}</span>
             </div>
           </div>
 
           {/* 提供者プロフィール */}
           <div className="border-t border-gray-200 pt-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">提供者</h3>
+            <h3 className="text-lg font-semibold mb-4">主催者情報</h3>
             <div className="flex items-start space-x-4">
               <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
-                {activity.organizer.avatar ? (
-                  <img
-                    src={activity.organizer.avatar}
-                    alt={activity.organizer.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-orange-200 flex items-center justify-center">
-                    <span className="text-orange-600 font-semibold text-lg">
-                      {activity.organizer.name.charAt(0)}
-                    </span>
-                  </div>
-                )}
+                <img
+                  src={activity.teacherPhotoURL || '/images/default-avatar.png'}
+                  alt={activity.teacherName || '主催者'}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-gray-800">{activity.organizer.name}</h4>
-                <div className="flex items-center space-x-1 mt-1">
-                  {renderStars(activity.organizer.rating)}
-                  <span className="text-sm text-gray-600 ml-2">
-                    ({activity.organizer.reviewCount}件)
-                  </span>
+                <h4 className="font-semibold">{activity.teacherName || '主催者'}</h4>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center">
+                    {renderStars(activity.rating?.average || 0)}
+                  </div>
+                  <span className="text-sm text-gray-600">({activity.rating?.count || 0}件)</span>
                 </div>
-                {activity.organizer.bio && (
-                  <p className="text-sm text-gray-600 mt-2">{activity.organizer.bio}</p>
-                )}
+                <p className="text-sm text-gray-600">{activity.teacherLocation || ''}</p>
               </div>
             </div>
           </div>
 
           {/* レビュー */}
-          {activity.reviews && activity.reviews.length > 0 && (
-            <div className="border-t border-gray-200 pt-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">レビュー</h3>
-                {activity.reviews.length > 3 && (
-                  <button
-                    onClick={() => setShowAllReviews(!showAllReviews)}
-                    className="text-orange-600 hover:text-orange-700 text-sm font-medium"
-                  >
-                    {showAllReviews ? '一部を表示' : 'すべて表示'}
-                  </button>
-                )}
-              </div>
-              
-              <div className="space-y-4">
-                {displayedReviews.map((review, index) => (
-                  <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-1">
-                        {renderStars(review.rating)}
-                      </div>
-                      <span className="text-sm text-gray-500">{review.date}</span>
-                    </div>
-                    <p className="text-gray-700">{review.comment}</p>
-                    <div className="text-sm text-gray-500 mt-2">
-                      {review.reviewerName}
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div className="border-t border-gray-200 pt-6">
+            <h3 className="text-lg font-semibold mb-4">レビュー</h3>
+            <div className="text-gray-500 text-center py-4">
+              レビューはまだありません
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -327,8 +289,8 @@ export function ActivityDetailPanel({
             onClick={() => onShare(activity)}
             className="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center justify-center space-x-1"
           >
-            <Share2 className="w-4 h-4" />
-            <span className="text-sm">共有</span>
+            <Calendar className="w-4 h-4" />
+            <span>日程調整中</span>
           </button>
         </div>
       </div>

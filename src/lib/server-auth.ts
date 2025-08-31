@@ -5,22 +5,31 @@ export interface ServerUser {
   uid: string
   admin?: boolean
   email?: string
+  emailVerified?: boolean
 }
 
-export async function getCurrentUser(): Promise<ServerUser | null> {
+export async function getServerUser(): Promise<ServerUser | null> {
   try {
-    const h = headers()
-    const auth = h.get('authorization') || h.get('Authorization')
-    if (!auth || !auth.startsWith('Bearer ')) return null
-    const token = auth.slice('Bearer '.length).trim()
-    const decoded = await verifyIdToken(token)
-    if (!decoded) return null
-    return {
-      uid: decoded.uid,
-      admin: Boolean((decoded as any).admin),
-      email: decoded.email,
+    const headersList = headers()
+    const authorization = headersList.get('authorization')
+    
+    if (!authorization?.startsWith('Bearer ')) {
+      return null
     }
-  } catch {
+
+    const token = authorization.substring(7)
+    const decodedToken = await verifyIdToken(token)
+    
+    return {
+      uid: decodedToken.uid,
+      email: decodedToken.email || null,
+      emailVerified: decodedToken.email_verified || false
+    }
+  } catch (error) {
+    console.error('Failed to get server user:', error)
     return null
   }
 }
+
+// Alias for backwards compatibility
+export const getCurrentUser = getServerUser

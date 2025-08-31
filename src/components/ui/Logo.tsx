@@ -25,11 +25,6 @@ export const Logo: React.FC<LogoProps> = ({
     lg: { height: 40, width: 100 }
   };
 
-  const textSizes = {
-    sm: 'text-lg',
-    md: 'text-2xl',
-    lg: 'text-3xl'
-  };
 
   const subtitleSizes = {
     sm: 'text-xs',
@@ -53,13 +48,14 @@ export const Logo: React.FC<LogoProps> = ({
         />
       ) : (
         <>
-          <div className="flex items-center">
-            <span className={cn('font-bold', textSizes[size])} style={{ color: '#0071bc' }}>B</span>
-            <span className={cn('font-bold', textSizes[size])} style={{ color: '#0071bc' }}>i</span>
-            <span className={cn('font-bold', textSizes[size])} style={{ color: '#ed1e79' }}>v</span>
-            <span className={cn('font-bold', textSizes[size])} style={{ color: '#0071bc' }}>i</span>
-            <span className={cn('font-bold', textSizes[size])} style={{ color: '#0071bc' }}>D</span>
-          </div>
+          <Image
+            src="/images/bivid-logo.svg"
+            alt="Bivid"
+            width={sizes[size].width}
+            height={sizes[size].height}
+            className="shrink-0 logo-image"
+            priority
+          />
           {showSubtitle && variant !== 'compact' && (
             <span className={cn(
               'ml-3 font-medium text-elder-text-secondary',

@@ -189,7 +189,7 @@ export function EmergencyContactForm({
                   {contacts.length > 1 && (
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       onClick={() => removeContact(index)}
                       className="text-red-600 hover:text-red-800"
@@ -276,15 +276,17 @@ export function EmergencyContactForm({
 
                 <div className="flex space-x-4">
                   <Button
+                    variant="secondary"
+                    size="sm"
                     type="submit"
-                    variant="outline"
                     disabled={loading}
                   >
                     保存
                   </Button>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
+                    size="sm"
                     onClick={() => setEditingIndex(null)}
                     disabled={loading}
                   >
@@ -326,7 +328,7 @@ export function EmergencyContactForm({
                     </div>
                   </div>
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
                     onClick={() => editContact(index)}
                     disabled={loading}
@@ -345,7 +347,8 @@ export function EmergencyContactForm({
         <div className="text-center mb-8">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
+            size="sm"
             onClick={addContact}
             disabled={loading}
             className="text-lg"
@@ -378,13 +381,7 @@ export function EmergencyContactForm({
           緊急連絡先を登録する
         </Button>
         {onSkip && (
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1 h-14 text-lg"
-            onClick={onSkip}
-            disabled={loading}
-          >
+          <Button variant="ghost" onClick={onSkip} className="flex-1 h-14 text-lg" disabled={loading}>
             後で登録する
           </Button>
         )}

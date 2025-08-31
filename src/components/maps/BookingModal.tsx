@@ -50,7 +50,7 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingId, setBookingId] = useState<string>('');
 
-  const baseAmount = activity.price * participantCount;
+  const baseAmount = (activity.price?.amount || 0) * participantCount;
   const pricing = calculatePricing(baseAmount);
   const totalAmount = pricing.totalAmount;
 
@@ -73,8 +73,8 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
       newErrors.contactPhone = '正しい電話番号を入力してください';
     }
 
-    if (participantCount < 1 || participantCount > activity.capacity) {
-      newErrors.participantCount = `参加人数は1〜${activity.capacity}名で入力してください`;
+    if (participantCount < 1 || participantCount > activity.maxStudents) {
+      newErrors.participantCount = `参加人数は1〜${activity.maxStudents}名で入力してください`;
     }
 
     setErrors(newErrors);
@@ -94,7 +94,6 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
           contactEmail,
           contactPhone,
           specialRequests: specialRequests.trim() || undefined,
-          paymentMethod,
           totalAmount
         };
 
@@ -105,9 +104,9 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
           },
           body: JSON.stringify({
             ...bookingData,
-            teacherId: activity.organizerId || 'temp-organizer-id',
-            scheduledAt: new Date(activity.date),
-            duration: parseInt(activity.duration) || 60,
+            organizerId: activity.teacherId || 'temp-organizer-id',
+            scheduledAt: new Date(),
+            duration: activity.duration || 60,
           }),
         });
 
@@ -177,7 +176,7 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <Calendar className="w-4 h-4" />
-                    <span>{activity.date}</span>
+                    <span>日程調整中</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Clock className="w-4 h-4" />
@@ -185,7 +184,7 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
                   </div>
                   <div className="flex items-center space-x-2">
                     <Users className="w-4 h-4" />
-                    <span>定員 {activity.capacity}名</span>
+                    <span>定員 {activity.maxStudents}名</span>
                   </div>
                 </div>
               </div>
@@ -202,7 +201,7 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
                     errors.participantCount ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
-                  {Array.from({ length: Math.min(activity.capacity, 10) }, (_, i) => i + 1).map(num => (
+                  {Array.from({ length: Math.min(activity.maxStudents, 10) }, (_, i) => i + 1).map(num => (
                     <option key={num} value={num}>{num}名</option>
                   ))}
                 </select>
@@ -299,8 +298,8 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
               <div className="bg-orange-50 p-4 rounded-lg">
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700">基本料金 × {participantCount}名</span>
-                    <span className="font-medium">{formatPrice(activity.price)} × {participantCount}</span>
+                    <span className="text-sm text-gray-600">定員: {activity.maxStudents}名</span>
+                    <span className="font-medium">{formatPrice(activity.price?.amount || 0)} × {participantCount}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-700">小計</span>
@@ -330,7 +329,7 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
               {errors.general && (
                 <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-start space-x-2">
                   <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-red-700">{errors.general}</div>
+                  <p className="text-sm text-gray-600">日程調整中</p>
                 </div>
               )}
 
@@ -355,7 +354,7 @@ export function BookingModal({ activity, onClose, onConfirm }: BookingModalProps
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">合計金額</span>
-                    <span className="font-bold text-orange-600">{formatPrice(totalAmount)}</span>
+                    <span className="text-2xl font-bold text-blue-600">¥{formatPrice(activity.price?.amount || 0)}</span>
                   </div>
                 </div>
               </div>

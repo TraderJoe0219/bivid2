@@ -3,40 +3,39 @@
 import Link from 'next/link'
 import { Search, Users, BookOpen, Heart, ArrowRight } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Logo } from '@/components/ui/Logo'
 
 export default function HomePage() {
   const { user } = useAuthStore()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-bivid-blue-50 to-bivid-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-pink-50">
       {/* Navigation コンポーネントがレイアウトで管理されているのでヘッダーは削除 */}
 
       {/* メインコンテンツ */}
       <main>
         {/* ヒーローセクション */}
-        <section className="section-spacing bg-gradient-to-r from-white via-bivid-blue-50 to-white">
-          <div className="container-elder text-center">
-            <h1 className="text-hero text-elder-text-primary mb-8">
+        <section className="py-20 bg-gradient-to-r from-white via-blue-50 to-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-5xl font-bold text-gray-900 mb-8">
               人生経験を活かして<br />
-              <span className="text-bivid-blue">新しいこと</span>を学びませんか？
+              <span className="text-blue-600">新しいこと</span>を学びませんか？
             </h1>
-            <p className="text-xl text-elder-text-secondary mb-12 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
               Bividは、豊富な人生経験を持つ方々が互いにスキルを教え合い、<br className="hidden sm:inline" />
               新しい学びと温かなつながりを得られるプラットフォームです。
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center max-w-2xl mx-auto">
               <Link 
                 href="/skills/search"
-                className="bg-bivid-blue hover:bg-bivid-blue-600 text-white font-semibold text-xl px-10 py-5 min-h-touch-xl gap-3 w-full sm:w-auto rounded-elder-lg shadow-elder-md hover:shadow-elder-lg transition-all duration-200 focus-outline"
+                className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xl px-10 py-5 min-h-[60px] gap-3 w-full sm:w-auto rounded-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <Search className="w-7 h-7" />
                 <span>スキルを探す</span>
               </Link>
               <Link 
                 href="/teach"
-                className="bg-bivid-pink hover:bg-bivid-pink-600 text-white font-semibold text-xl px-10 py-5 min-h-touch-xl gap-3 w-full sm:w-auto rounded-elder-lg shadow-elder-md hover:shadow-elder-lg transition-all duration-200 focus-outline"
+                className="flex items-center justify-center bg-pink-600 hover:bg-pink-700 text-white font-semibold text-xl px-10 py-5 min-h-[60px] gap-3 w-full sm:w-auto rounded-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
               >
                 <BookOpen className="w-7 h-7" />
                 <span>教える</span>
@@ -46,128 +45,116 @@ export default function HomePage() {
         </section>
 
         {/* 特徴セクション */}
-        <section className="section-spacing bg-gradient-to-b from-bivid-blue-50 to-white">
-          <div className="container-elder">
-            <h2 className="text-heading text-center text-elder-text-primary mb-16">
+        <section className="py-20 bg-gradient-to-b from-blue-50 to-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
               Bividの特徴
             </h2>
             <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-              <Card variant="hover" className="text-center">
-                <CardHeader>
-                  <div className="w-20 h-20 bg-gradient-to-br from-bivid-blue to-bivid-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-elder-md">
-                    <Users className="w-10 h-10 text-white" />
-                  </div>
-                  <CardTitle as="h3" className="text-subheading">安心のコミュニティ</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-lg">
-                    同世代の方々との安心できる環境で、<br />
-                    気軽にスキルを共有できます。
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+                  <Users className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900 mb-4">安心のコミュニティ</h3>
+                <p className="text-lg text-gray-600">
+                  同世代の方々との安心できる環境で、<br />
+                  気軽にスキルを共有できます。
+                </p>
+              </div>
               
-              <Card variant="hover" className="text-center">
-                <CardHeader>
-                  <div className="w-20 h-20 bg-gradient-to-br from-bivid-pink to-bivid-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-elder-md">
-                    <BookOpen className="w-10 h-10 text-white" />
-                  </div>
-                  <CardTitle as="h3" className="text-subheading">豊富なスキル</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-lg">
-                    料理、園芸、手芸、楽器演奏など、<br />
-                    様々なスキルを学ぶことができます。
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-pink-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+                  <BookOpen className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900 mb-4">豊富なスキル</h3>
+                <p className="text-lg text-gray-600">
+                  料理、園芸、手芸、楽器演奏など、<br />
+                  様々なスキルを学ぶことができます。
+                </p>
+              </div>
               
-              <Card variant="hover" className="text-center">
-                <CardHeader>
-                  <div className="w-20 h-20 bg-gradient-to-br from-bivid-blue-400 to-bivid-pink rounded-full flex items-center justify-center mx-auto mb-6 shadow-elder-md">
-                    <Heart className="w-10 h-10 text-white" />
-                  </div>
-                  <CardTitle as="h3" className="text-subheading">つながりを大切に</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-lg">
-                    スキルを通じて新しい友人関係を築き、<br />
-                    充実した時間を過ごせます。
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+                  <Heart className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900 mb-4">つながりを大切に</h3>
+                <p className="text-lg text-gray-600">
+                  スキルを通じて新しい友人関係を築き、<br />
+                  充実した時間を過ごせます。
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* おすすめスキル */}
-        <section className="section-spacing bg-white">
-          <div className="container-elder">
-            <h2 className="text-heading text-center text-elder-text-primary mb-16">
+        <section className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
               おすすめのスキル
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              <Link href="/skills/1" className="card-interactive group">
-                <div className="aspect-video relative overflow-hidden rounded-lg mb-4">
+              <Link href="/skills/1" className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                <div className="aspect-video relative overflow-hidden">
                   <img
                     src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800"
                     alt="初心者向けお料理教室"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-3 left-3 bg-bivid-blue text-white px-3 py-1 rounded-full text-sm font-medium shadow-elder">
+                  <div className="absolute top-3 left-3 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow-md">
                     料理
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold text-elder-text-primary mb-2 group-hover:text-elder-interactive-primary transition-colors">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                     初心者向けお料理教室
                   </h3>
-                  <p className="text-elder-text-secondary mb-3">
+                  <p className="text-gray-600 mb-3">
                     包丁の持ち方から始める、お料理の基礎を楽しく学べます
                   </p>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-sm text-elder-text-muted">
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <span>⭐ 4.7 (28件)</span>
                       <span>👥 田中花子先生</span>
                     </div>
-                    <span className="text-lg font-semibold text-elder-interactive-primary">
+                    <span className="text-lg font-semibold text-blue-600">
                       ¥3,500
                     </span>
                   </div>
                 </div>
               </Link>
 
-              <Link href="/skills/2" className="card-interactive group">
-                <div className="aspect-video relative overflow-hidden rounded-lg mb-4">
+              <Link href="/skills/2" className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                <div className="aspect-video relative overflow-hidden">
                   <img
                     src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800"
                     alt="ベランダでできる簡単ガーデニング"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-3 left-3 bg-bivid-pink text-white px-3 py-1 rounded-full text-sm font-medium shadow-elder">
+                  <div className="absolute top-3 left-3 bg-pink-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow-md">
                     園芸
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold text-elder-text-primary mb-2 group-hover:text-elder-interactive-primary transition-colors">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-pink-600 transition-colors">
                     ベランダでできる簡単ガーデニング
                   </h3>
-                  <p className="text-elder-text-secondary mb-3">
+                  <p className="text-gray-600 mb-3">
                     限られたスペースでも楽しめる、シニア向けガーデニング講座
                   </p>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-sm text-elder-text-muted">
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <span>⭐ 4.6 (15件)</span>
                       <span>👥 鈴木一郎先生</span>
                     </div>
-                    <span className="text-lg font-semibold text-elder-interactive-primary">
+                    <span className="text-lg font-semibold text-pink-600">
                       ¥2,500
                     </span>
                   </div>
                 </div>
               </Link>
 
-              <Link href="/map" className="card-interactive group bg-gradient-to-br from-bivid-blue via-bivid-blue-600 to-bivid-pink text-white shadow-elder-lg">
+              <Link href="/map" className="bg-gradient-to-br from-blue-600 via-blue-700 to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg overflow-hidden group">
                 <div className="p-8 text-center">
                   <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Search className="w-8 h-8" />
@@ -189,7 +176,7 @@ export default function HomePage() {
             <div className="text-center">
               <Link 
                 href="/skills/search"
-                className="bg-bivid-blue hover:bg-bivid-blue-600 text-white font-semibold text-lg px-8 py-4 min-h-touch-xl gap-2 rounded-elder-lg shadow-elder-md hover:shadow-elder-lg transition-all duration-200 focus-outline"
+                className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg px-8 py-4 min-h-[50px] gap-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <span>すべてのスキルを見る</span>
                 <ArrowRight className="w-5 h-5" />
@@ -199,9 +186,9 @@ export default function HomePage() {
         </section>
 
         {/* 人気のスキルカテゴリ */}
-        <section className="section-spacing bg-gradient-to-t from-bivid-pink-50 to-white">
-          <div className="container-elder">
-            <h2 className="text-heading text-center text-elder-text-primary mb-16">
+        <section className="py-20 bg-gradient-to-t from-pink-50 to-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
               カテゴリから探す
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -218,14 +205,14 @@ export default function HomePage() {
                 <Link
                   key={category.name}
                   href={`/skills/search?category=${encodeURIComponent(category.name)}`}
-                  className="card-interactive text-center group p-6"
+                  className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-center group p-6"
                 >
                   <div className="text-4xl mb-3">{category.emoji}</div>
-                  <span className="text-lg font-semibold text-elder-text-primary group-hover:text-elder-interactive-primary transition-colors block mb-2">
+                  <span className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors block mb-2">
                     {category.name}
                   </span>
-                  <span className="text-sm text-elder-text-muted">{category.count}件のスキル</span>
-                  <ArrowRight className="w-5 h-5 mx-auto mt-3 text-elder-text-muted group-hover:text-elder-interactive-primary group-hover:translate-x-1 transition-all" />
+                  <span className="text-sm text-gray-500">{category.count}件のスキル</span>
+                  <ArrowRight className="w-5 h-5 mx-auto mt-3 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
                 </Link>
               ))}
             </div>
@@ -234,11 +221,13 @@ export default function HomePage() {
       </main>
 
       {/* フッター */}
-      <footer className="bg-gradient-to-r from-bivid-blue-900 via-bivid-blue-800 to-bivid-pink-900 text-white py-16">
-        <div className="container-elder">
+      <footer className="bg-gradient-to-r from-blue-900 via-blue-800 to-pink-900 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-12">
             <div>
-              <h3 className="text-2xl font-bold mb-6 text-bivid-pink-300">Bivid</h3>
+              <div className="mb-6">
+                <Logo size="lg" showSubtitle={false} />
+              </div>
               <p className="text-gray-300 text-lg leading-relaxed">
                 高齢者向けスキルシェアプラットフォーム
               </p>
@@ -247,17 +236,17 @@ export default function HomePage() {
               <h4 className="text-xl font-semibold mb-6">サービス</h4>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/skills/search" className="text-gray-300 hover:text-white text-lg transition-colors focus-outline rounded">
+                  <Link href="/skills/search" className="text-gray-300 hover:text-white text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
                     スキルを探す
                   </Link>
                 </li>
                 <li>
-                  <Link href="/teach" className="text-gray-300 hover:text-white text-lg transition-colors focus-outline rounded">
+                  <Link href="/teach" className="text-gray-300 hover:text-white text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
                     教える
                   </Link>
                 </li>
                 <li>
-                  <Link href="/about" className="text-gray-300 hover:text-white text-lg transition-colors focus-outline rounded">
+                  <Link href="/about" className="text-gray-300 hover:text-white text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
                     Bividについて
                   </Link>
                 </li>
@@ -267,17 +256,17 @@ export default function HomePage() {
               <h4 className="text-xl font-semibold mb-6">サポート</h4>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/help" className="text-gray-300 hover:text-white text-lg transition-colors focus-outline rounded">
+                  <Link href="/help" className="text-gray-300 hover:text-white text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
                     ヘルプ
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="text-gray-300 hover:text-white text-lg transition-colors focus-outline rounded">
+                  <Link href="/contact" className="text-gray-300 hover:text-white text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
                     お問い合わせ
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="text-gray-300 hover:text-white text-lg transition-colors focus-outline rounded">
+                  <Link href="/privacy" className="text-gray-300 hover:text-white text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded">
                     プライバシーポリシー
                   </Link>
                 </li>

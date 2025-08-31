@@ -28,7 +28,7 @@ export function GoogleAuthButton({
   return (
     <Button
       type="button"
-      variant="outline"
+      variant="secondary"
       size="lg"
       className="w-full border-gray-300 hover:bg-gray-50 text-gray-700"
       onClick={handleClick}

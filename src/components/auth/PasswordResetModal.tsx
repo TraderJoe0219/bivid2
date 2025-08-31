@@ -133,7 +133,7 @@ export function PasswordResetModal({ isOpen, onClose }: PasswordResetModalProps)
             <div className="flex space-x-3">
               <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onClick={handleClose}
                 className="flex-1"
                 size="lg"

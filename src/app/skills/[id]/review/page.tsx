@@ -235,7 +235,7 @@ export default function ReviewPage() {
             <Button onClick={() => router.push(`/skills/${skillId}`)}>
               スキル詳細に戻る
             </Button>
-            <Button variant="outline" onClick={() => router.push('/bookings')}>
+            <Button variant="secondary" onClick={() => setFormData(prev => ({ ...prev, rating: 5 }))}>
               予約一覧を見る
             </Button>
           </div>
@@ -404,7 +404,7 @@ export default function ReviewPage() {
                 {formData.pros.length < 5 && (
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
                     onClick={addPro}
                   >
@@ -445,7 +445,7 @@ export default function ReviewPage() {
                 {formData.cons.length < 5 && (
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
                     onClick={addCon}
                   >
@@ -503,7 +503,7 @@ export default function ReviewPage() {
             <div className="flex justify-end space-x-4">
               <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onClick={() => router.back()}
                 disabled={submitting}
               >

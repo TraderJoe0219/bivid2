@@ -49,7 +49,7 @@ export function ProfileSetupForm({
       firstName: initialData?.firstName || '',
       lastName: initialData?.lastName || '',
       dateOfBirth: initialData?.dateOfBirth || '',
-      gender: initialData?.gender || '',
+      gender: initialData?.gender || undefined,
       prefecture: initialData?.prefecture || '',
       city: initialData?.city || '',
       area: initialData?.area || '',

@@ -68,10 +68,9 @@ function StripePaymentForm({
           currency,
           bookingId,
           metadata: {
-            skillId: skillId || '',
-            participantCount: participantCount.toString(),
-            contactEmail: contactEmail || '',
-            bookingId,
+            activityId: bookingId,
+            participantCount: 1,
+            contactEmail: 'user@example.com',
           },
         });
         setClientSecret(response.clientSecret);

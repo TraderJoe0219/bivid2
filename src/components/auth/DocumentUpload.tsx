@@ -227,7 +227,7 @@ export function DocumentUpload({ onSubmit, loading, error, success, onSkip }: Do
                     JPEG、PNG、PDF ファイル（最大10MB）
                   </p>
                 </div>
-                <Button type="button" variant="outline" size="lg">
+                <Button type="button" variant="secondary" size="lg">
                   <Camera className="w-5 h-5 mr-2" />
                   ファイルを選択
                 </Button>
@@ -257,7 +257,7 @@ export function DocumentUpload({ onSubmit, loading, error, success, onSkip }: Do
                   <div className="flex space-x-2">
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       onClick={() => fileInputRef.current?.click()}
                     >
@@ -265,7 +265,15 @@ export function DocumentUpload({ onSubmit, loading, error, success, onSkip }: Do
                     </Button>
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      写真を撮り直す
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
                       size="sm"
                       onClick={removeFile}
                     >
@@ -321,7 +329,17 @@ export function DocumentUpload({ onSubmit, loading, error, success, onSkip }: Do
           {onSkip && (
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
+              className="flex-1 h-14 text-lg"
+              onClick={onSkip}
+            >
+              キャンセル
+            </Button>
+          )}
+          {onSkip && (
+            <Button
+              type="button"
+              variant="ghost"
               className="flex-1 h-14 text-lg"
               onClick={onSkip}
               disabled={loading}

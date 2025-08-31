@@ -23,7 +23,7 @@ import {
   Mail
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Skill, SkillReview, SKILL_CATEGORIES } from '@/types/skill'
+import { Skill, SkillReview, SkillCategory } from '@/types/skill'
 import { Loading } from '@/components/Loading'
 
 // モックデータ - 実際の実装ではAPIから取得
@@ -41,21 +41,40 @@ const getMockSkill = (id: string): Skill | null => {
 毎回異なるメニューを作りながら、自然とお料理のスキルが身につきます。作った料理はその場でお召し上がりいただけるので、美味しく楽しく学べます。
 
 アットホームな雰囲気で、他の参加者の方々と交流しながら、お料理の楽しさを味わってください。`,
-      category: 'cooking',
+      category: SkillCategory.COOKING,
       difficulty: 'beginner',
       pricing: {
+        type: 'per_session',
         amount: 3500,
         currency: 'JPY',
         unit: '回'
       },
+      teacherId: '1',
+      subCategory: '基礎料理',
+      targetAudience: ['シニア', '初心者'],
+      isActive: true,
+      isApproved: true,
+      isFeatured: false,
+      schedule: {
+        type: 'flexible' as const,
+        availableSlots: [{
+          dayOfWeek: 1,
+          startTime: '10:00',
+          endTime: '16:00',
+          isAvailable: true
+        }]
+      },
       duration: {
         typical: 120,
         minimum: 90,
-        maximum: 150
+        maximum: 150,
+        flexible: true
       },
       capacity: {
         maxStudents: 6,
-        currentBookings: 2
+        minStudents: 1,
+        currentBookings: 2,
+        waitingList: 0
       },
       location: {
         type: 'offline',
@@ -71,20 +90,23 @@ const getMockSkill = (id: string): Skill | null => {
         description: '50歳以上推奨'
       },
       teacher: {
-        id: 'teacher1',
+        id: '1',
         name: '田中 花子',
+        displayName: '田中 花子',
         photoURL: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
         bio: `料理歴30年、元料理教室講師です。
 特に家庭料理を得意としており、シニアの方々に分かりやすく、楽しく料理を教えることを心がけています。
 
 これまで500名以上の生徒さんにお料理を教えてきました。お料理を通じて、生活に彩りと健康をお届けしたいと思っています。`,
         location: '世田谷区',
+        joinedDate: new Date('2020-01-01'),
         teachingExperience: 8,
         specialties: ['家庭料理', '和食', '健康料理'],
         languages: ['日本語'],
         rating: {
           average: 4.8,
-          count: 142
+          count: 24,
+          asTeacher: 4.8
         },
         verificationStatus: {
           isEmailVerified: true,
@@ -105,9 +127,12 @@ const getMockSkill = (id: string): Skill | null => {
       reviews: [
         {
           id: 'review1',
+          skillId: '1',
+          studentId: 'student1',
           student: {
             name: '山田 太郎',
-            photoURL: null
+            photoURL: undefined,
+            verifiedStatus: true
           },
           rating: 5,
           title: '丁寧な指導で安心',
@@ -116,13 +141,18 @@ const getMockSkill = (id: string): Skill | null => {
           cons: [],
           createdAt: new Date('2024-01-15'),
           helpfulCount: 5,
-          wouldRecommend: true
+          wouldRecommend: true,
+          reportedCount: 0,
+          updatedAt: new Date('2024-01-10')
         },
         {
           id: 'review2',
+          skillId: '1',
+          studentId: 'student2',
           student: {
-            name: '佐藤 美子',
-            photoURL: 'https://images.unsplash.com/photo-1494790108755-2616b612b5c2?w=400'
+            name: '佐藤太郎',
+            photoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400',
+            verifiedStatus: true
           },
           rating: 5,
           title: '料理が楽しくなりました',
@@ -131,7 +161,9 @@ const getMockSkill = (id: string): Skill | null => {
           cons: [],
           createdAt: new Date('2024-01-10'),
           helpfulCount: 3,
-          wouldRecommend: true
+          wouldRecommend: true,
+          reportedCount: 0,
+          updatedAt: new Date('2024-01-10')
         }
       ],
       prerequisites: [
@@ -146,9 +178,11 @@ const getMockSkill = (id: string): Skill | null => {
       ],
       tags: ['初心者歓迎', '基礎から学べる', '少人数制', '楽しい'],
       statistics: {
+        viewCount: 1240,
+        favoriteCount: 89,
         bookingCount: 156,
-        favoriteCount: 42,
-        viewCount: 1248
+        completionRate: 95,
+        repeatCustomerRate: 78
       },
       isAvailableForBooking: true,
       createdAt: new Date('2023-12-01'),
@@ -163,21 +197,40 @@ const getMockSkill = (id: string): Skill | null => {
 シニアの方でも無理なく続けられる、簡単で楽しいガーデニングの方法をお教えします。季節の花や野菜を育てて、生活に彩りを加えませんか？
 
 プランターを使った栽培方法から、水やりのコツ、肥料の与え方まで、基本的なことから丁寧にお教えします。`,
-      category: 'gardening',
+      category: SkillCategory.GARDENING,
       difficulty: 'beginner',
+      teacherId: '1',
+      subCategory: '基礎料理',
+      targetAudience: ['シニア', '初心者'],
+      isActive: true,
+      isApproved: true,
+      isFeatured: false,
       pricing: {
+        type: 'per_session',
         amount: 2500,
         currency: 'JPY',
         unit: '回'
       },
+      schedule: {
+        type: 'flexible' as const,
+        availableSlots: [{
+          dayOfWeek: 6,
+          startTime: '09:00',
+          endTime: '12:00',
+          isAvailable: true
+        }]
+      },
       duration: {
         typical: 90,
         minimum: 60,
-        maximum: 120
+        maximum: 120,
+        flexible: true
       },
       capacity: {
         maxStudents: 4,
-        currentBookings: 1
+        minStudents: 1,
+        currentBookings: 1,
+        waitingList: 0
       },
       location: {
         type: 'offline',
@@ -193,18 +246,21 @@ const getMockSkill = (id: string): Skill | null => {
         description: '60歳以上推奨'
       },
       teacher: {
-        id: 'teacher2',
-        name: '鈴木 一郎',
+        id: '2',
+        name: '佐藤 一郎',
+        displayName: '佐藤 一郎',
         photoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400',
         bio: `ガーデニング歴20年、園芸療法士の資格を持っています。
 小さなスペースでも楽しめるガーデニングを通じて、シニアの方々の生活に潤いをお届けしたいと思っています。`,
         location: '川崎市',
+        joinedDate: new Date('2019-06-01'),
         teachingExperience: 5,
         specialties: ['ベランダガーデニング', '野菜栽培', '園芸療法'],
         languages: ['日本語'],
         rating: {
-          average: 4.6,
-          count: 87
+          average: 4.9,
+          count: 18,
+          asTeacher: 4.9
         },
         verificationStatus: {
           isEmailVerified: true,
@@ -224,9 +280,12 @@ const getMockSkill = (id: string): Skill | null => {
       reviews: [
         {
           id: 'review3',
+          skillId: '2',
+          studentId: 'student3',
           student: {
             name: '高橋 良子',
-            photoURL: null
+            photoURL: undefined,
+            verifiedStatus: true
           },
           rating: 5,
           title: 'ベランダが生き生きとしました',
@@ -235,7 +294,9 @@ const getMockSkill = (id: string): Skill | null => {
           cons: [],
           createdAt: new Date('2024-01-12'),
           helpfulCount: 4,
-          wouldRecommend: true
+          wouldRecommend: true,
+          reportedCount: 0,
+          updatedAt: new Date('2024-01-12')
         }
       ],
       prerequisites: [
@@ -249,9 +310,11 @@ const getMockSkill = (id: string): Skill | null => {
       ],
       tags: ['初心者歓迎', 'ベランダ', '療養効果', '少人数'],
       statistics: {
+        viewCount: 890,
+        favoriteCount: 67,
         bookingCount: 89,
-        favoriteCount: 23,
-        viewCount: 756
+        completionRate: 98,
+        repeatCustomerRate: 85
       },
       isAvailableForBooking: true,
       createdAt: new Date('2023-11-15'),
@@ -380,7 +443,7 @@ export default function SkillDetailPage() {
     )
   }
 
-  const categoryConfig = SKILL_CATEGORIES.find(cat => cat.value === skill.category)
+  const categoryConfig = { name: skill.category, color: 'bg-blue-500', icon: '🍳' }
   const priceDisplay = skill.pricing.amount === 0 
     ? '無料' 
     : `¥${skill.pricing.amount.toLocaleString()}/${skill.pricing.unit}`
@@ -411,7 +474,7 @@ export default function SkillDetailPage() {
             
             <div className="flex items-center space-x-2">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={handleFavoriteToggle}
                 className={isFavorite ? 'text-red-600' : 'text-gray-600'}
@@ -421,7 +484,7 @@ export default function SkillDetailPage() {
               </Button>
               
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={handleShare}
               >
@@ -510,7 +573,7 @@ export default function SkillDetailPage() {
                       }`}
                     >
                       {tab.icon}
-                      <span>{tab.label}</span>
+                      <span>{tab.id === 'overview' ? '概要' : tab.id === 'reviews' ? 'レビュー' : tab.id === 'teacher' ? '講師情報' : tab.id}</span>
                     </button>
                   ))}
                 </nav>
@@ -578,7 +641,7 @@ export default function SkillDetailPage() {
                         レビュー ({skill.rating.count}件)
                       </h3>
                       <div className="flex items-center space-x-2">
-                        <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                        <Heart className="w-5 h-5" />
                         <span className="text-lg font-semibold text-gray-900">
                           {skill.rating.average.toFixed(1)}
                         </span>
@@ -723,7 +786,7 @@ export default function SkillDetailPage() {
                             {skill.teacher.name}
                           </h3>
                           {skill.teacher.verificationStatus.isDocumentVerified && (
-                            <Shield className="w-5 h-5 text-blue-500" title="身元確認済み" />
+                            <Shield className="w-5 h-5 text-blue-500" />
                           )}
                         </div>
                         
@@ -772,9 +835,9 @@ export default function SkillDetailPage() {
                       <div>
                         <h4 className="font-semibold text-gray-900 mb-2">対応言語</h4>
                         <div className="flex flex-wrap gap-2">
-                          {skill.teacher.languages.map((language, index) => (
+                          {skill.teacher.languages.map((language: string) => (
                             <span
-                              key={index}
+                              key={language}
                               className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full"
                             >
                               {language}
@@ -841,7 +904,7 @@ export default function SkillDetailPage() {
                 </Button>
                 
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={handleContact}
                   className="w-full"
                 >
@@ -858,7 +921,7 @@ export default function SkillDetailPage() {
               <div className="space-y-3">
                 <div>
                   <span className="text-sm text-gray-600">カテゴリ</span>
-                  <p className="font-medium">{categoryConfig?.label}</p>
+                  <p className="font-medium">{categoryConfig?.name}</p>
                 </div>
                 
                 <div>
