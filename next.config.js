@@ -15,11 +15,17 @@ const nextConfig = {
       '@google-cloud/firestore',
       '@google-cloud/storage',
       'node-forge',
-      '@firebase/database-compat'
+      '@firebase/database-compat',
+      'react-dom',
+      're2',
+      '@electric-sql/pglite',
+      '@unrs'
     ],
-    // ファイル追跡を最小限に制限
-    outputFileTracingIncludes: {},
-    // 大型依存関係を除外
+    // 最小限のファイル追跡
+    outputFileTracingIncludes: {
+      '/api/**/*': ['./node_modules/**/*.wasm', './node_modules/**/*.node']
+    },
+    // 大型依存関係を徹底的に除外
     outputFileTracingExcludes: {
       '*': [
         'node_modules/@next/swc-*/**/*',
@@ -29,7 +35,9 @@ const nextConfig = {
         'node_modules/google-gax/**/*',
         'node_modules/@google-cloud/**/*',
         'node_modules/firebase-admin/**/*',
-        'node_modules/node-forge/**/*'
+        'node_modules/node-forge/**/*',
+        'node_modules/@firebase/database-compat/**/*',
+        'node_modules/react-dom/cjs/**/*'
       ]
     }
   },
@@ -43,13 +51,6 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-  },
-
-  // Vercel向けの最適化
-  experimental: {
-    outputFileTracingIncludes: {
-      '/api/**/*': ['./node_modules/**/*.wasm', './node_modules/**/*.node'],
-    },
   },
 
   // webpack設定のカスタマイズ
@@ -116,13 +117,28 @@ const nextConfig = {
           'node-forge'
         ]
 
+        // React DOMと関連の外部化
+        const reactPackages = [
+          'react-dom',
+          'react-dom/client',
+          'react-dom/server'
+        ]
+
         // ユーティリティの外部化
         const utilities = [
           'utf-8-validate',
-          'bufferutil'
+          'bufferutil',
+          'ws',
+          'mongodb',
+          'pg',
+          'mysql2',
+          'sqlite3',
+          'bcrypt',
+          'canvas',
+          'sharp'
         ]
 
-        const allExternals = [...largeBinaries, ...firebasePackages, ...utilities]
+        const allExternals = [...largeBinaries, ...firebasePackages, ...reactPackages, ...utilities]
 
         if (allExternals.some(pkg => request?.startsWith(pkg))) {
           return callback(null, `commonjs ${request}`)

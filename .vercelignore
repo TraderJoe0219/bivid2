@@ -20,7 +20,7 @@ jest.config.*
 .eslintrc*
 .prettierrc*
 
-# 大型依存関係のソースファイルのみ除外
+# 大型依存関係のソースファイルを更に積極的に除外
 node_modules/@next/swc-*
 node_modules/re2
 node_modules/@electric-sql/pglite
@@ -29,3 +29,5 @@ node_modules/google-gax
 node_modules/@google-cloud
 node_modules/firebase-admin/lib
 node_modules/node-forge
+node_modules/@firebase/database-compat
+node_modules/react-dom/cjs

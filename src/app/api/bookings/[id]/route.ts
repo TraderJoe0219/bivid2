@@ -3,6 +3,9 @@ import { updateBookingSchema } from '@/lib/validations/booking';
 import BookingService from '@/lib/bookings';
 import { getCurrentUser } from '@/lib/auth';
 
+// Edge Runtimeを使用してバンドルサイズを削減
+export const runtime = 'edge';
+
 interface RouteParams {
   params: {
     id: string;

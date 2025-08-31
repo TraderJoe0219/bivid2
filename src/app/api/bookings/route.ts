@@ -6,6 +6,9 @@ import { cors } from '@/middleware/cors';
 import { rateLimit } from '@/middleware/rateLimit';
 import { sanitizeInput } from '@/lib/security/validation';
 
+// Edge Runtimeを使用してバンドルサイズを削減
+export const runtime = 'edge';
+
 // CORS preflight
 export async function OPTIONS(request: NextRequest) {
   const preflight = cors(request)
