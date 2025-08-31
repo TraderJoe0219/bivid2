@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { confirmPaymentIntent } from '@/lib/stripe-server';
-import BookingService from '@/lib/bookings';
-import { getCurrentUser } from '@/lib/auth';
+
+// Edge Runtimeを使用してバンドルサイズを削減
+export const runtime = 'edge';
+
+// 軽量なライブラリのみをインポート
 
 export async function POST(request: NextRequest) {
   try {

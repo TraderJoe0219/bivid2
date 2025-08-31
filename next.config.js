@@ -9,11 +9,29 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    serverComponentsExternalPackages: ['firebase-admin'],
-    // より具体的にファイル追跡を制限
-    outputFileTracingIncludes: {
-      '/api/auth/**/*': ['./node_modules/firebase-admin/**'],
-    },
+    serverComponentsExternalPackages: [
+      'firebase-admin',
+      'google-gax',
+      '@google-cloud/firestore',
+      '@google-cloud/storage',
+      'node-forge',
+      '@firebase/database-compat'
+    ],
+    // ファイル追跡を最小限に制限
+    outputFileTracingIncludes: {},
+    // 大型依存関係を除外
+    outputFileTracingExcludes: {
+      '*': [
+        'node_modules/@next/swc-*/**/*',
+        'node_modules/re2/**/*',
+        'node_modules/@electric-sql/pglite/**/*',
+        'node_modules/@unrs/**/*',
+        'node_modules/google-gax/**/*',
+        'node_modules/@google-cloud/**/*',
+        'node_modules/firebase-admin/**/*',
+        'node_modules/node-forge/**/*'
+      ]
+    }
   },
   // 画像最適化の設定
   images: {
@@ -76,21 +94,41 @@ const nextConfig = {
     // サーバーサイドでの大きな依存関係の外部化
     if (isServer) {
       config.externals = config.externals || []
-      config.externals.push({
-        'utf-8-validate': 'commonjs utf-8-validate',
-        'bufferutil': 'commonjs bufferutil',
-        '@next/swc-linux-x64-musl': 'commonjs @next/swc-linux-x64-musl',
-        '@next/swc-linux-x64-gnu': 'commonjs @next/swc-linux-x64-gnu',
-        're2': 'commonjs re2',
-        '@electric-sql/pglite': 'commonjs @electric-sql/pglite',
-        'google-gax': 'commonjs google-gax',
-        '@google-cloud/firestore': 'commonjs @google-cloud/firestore',
-        '@google-cloud/storage': 'commonjs @google-cloud/storage',
-        'firebase-admin': 'commonjs firebase-admin',
-        'node-forge': 'commonjs node-forge',
-        '@firebase/database-compat': 'commonjs @firebase/database-compat',
-        '@unrs/resolver-binding-linux-x64-musl': 'commonjs @unrs/resolver-binding-linux-x64-musl',
-        '@unrs/resolver-binding-linux-x64-gnu': 'commonjs @unrs/resolver-binding-linux-x64-gnu',
+      // 関数ベースでより柔軟な外部化
+      config.externals.push(({ context, request }, callback) => {
+        // 大型バイナリの完全な外部化
+        const largeBinaries = [
+          '@next/swc-linux-x64-musl',
+          '@next/swc-linux-x64-gnu', 
+          're2',
+          '@electric-sql/pglite',
+          '@unrs/resolver-binding-linux-x64-musl',
+          '@unrs/resolver-binding-linux-x64-gnu'
+        ]
+
+        // Firebase/Google Cloudの外部化
+        const firebasePackages = [
+          'firebase-admin',
+          'google-gax',
+          '@google-cloud/firestore',
+          '@google-cloud/storage',
+          '@firebase/database-compat',
+          'node-forge'
+        ]
+
+        // ユーティリティの外部化
+        const utilities = [
+          'utf-8-validate',
+          'bufferutil'
+        ]
+
+        const allExternals = [...largeBinaries, ...firebasePackages, ...utilities]
+
+        if (allExternals.some(pkg => request?.startsWith(pkg))) {
+          return callback(null, `commonjs ${request}`)
+        }
+
+        callback()
       })
     }
 

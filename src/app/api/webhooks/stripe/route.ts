@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { constructWebhookEvent, handleWebhookEvent } from '@/lib/stripe-server';
-import BookingService from '@/lib/bookings';
+
+// Edge Runtimeを使用してバンドルサイズを削減
+export const runtime = 'edge';
 
 export async function POST(request: NextRequest) {
   try {

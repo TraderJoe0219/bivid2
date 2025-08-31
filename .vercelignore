@@ -1,0 +1,32 @@
+# 開発用ファイル
+**/.DS_Store
+*.log
+*.tgz
+*.tar.gz
+
+# ドキュメント
+docs/
+README.md
+*.md
+
+# テストファイル
+**/__tests__/**
+**/*.test.*
+**/*.spec.*
+coverage/
+jest.config.*
+
+# 不要な設定ファイル
+.eslintrc*
+.prettierrc*
+tailwind.config.js
+
+# 大型依存関係のソースファイル
+node_modules/@next/swc-*
+node_modules/re2
+node_modules/@electric-sql/pglite
+node_modules/@unrs
+node_modules/google-gax
+node_modules/@google-cloud
+node_modules/firebase-admin/lib
+node_modules/node-forge
