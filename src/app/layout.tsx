@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from 'next'
-import { AuthProvider } from '@/components/providers/AuthProvider'
-import { Navigation } from '@/components/layout/Navigation'
+import { Inter } from 'next/font/google'
 import './globals.css'
+import { AuthProvider } from '@/contexts/AuthContext'
+import ErrorBoundary from '@/components/ErrorBoundary'
+import { Navigation } from '@/components/layout/Navigation'
+import ClientErrorHandler from '@/components/ClientErrorHandler'
 
 export const metadata: Metadata = {
   title: 'Bivid - 高齢者向けスキルシェアプラットフォーム',
@@ -46,23 +49,26 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased min-h-screen">
-        <AuthProvider>
-          <div id="root" className="flex flex-col min-h-screen">
-            {/* スキップリンク */}
-            <a 
-              href="#main-content" 
-              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 btn-primary"
-            >
-              メインコンテンツにスキップ
-            </a>
-            
-            <Navigation />
-            
-            <main id="main-content" className="flex-1" role="main">
-              {children}
-            </main>
-          </div>
-        </AuthProvider>
+        <ErrorBoundary>
+          <ClientErrorHandler />
+          <AuthProvider>
+            <div id="root" className="flex flex-col min-h-screen">
+              {/* スキップリンク */}
+              <a 
+                href="#main-content" 
+                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 btn-primary"
+              >
+                メインコンテンツにスキップ
+              </a>
+              
+              <Navigation />
+              
+              <main id="main-content" className="flex-1" role="main">
+                {children}
+              </main>
+            </div>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )
