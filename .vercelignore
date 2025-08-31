@@ -30,4 +30,3 @@ node_modules/@google-cloud
 node_modules/firebase-admin/lib
 node_modules/node-forge
 node_modules/@firebase/database-compat
-node_modules/react-dom/cjs

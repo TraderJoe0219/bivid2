@@ -16,7 +16,6 @@ const nextConfig = {
       '@google-cloud/storage',
       'node-forge',
       '@firebase/database-compat',
-      'react-dom',
       're2',
       '@electric-sql/pglite',
       '@unrs'
@@ -117,14 +116,7 @@ const nextConfig = {
           'node-forge'
         ]
 
-        // React DOMと関連の外部化
-        const reactPackages = [
-          'react-dom',
-          'react-dom/client',
-          'react-dom/server'
-        ]
-
-        // ユーティリティの外部化
+        // 安全なユーティリティの外部化（React DOMは除外）
         const utilities = [
           'utf-8-validate',
           'bufferutil',
@@ -138,7 +130,7 @@ const nextConfig = {
           'sharp'
         ]
 
-        const allExternals = [...largeBinaries, ...firebasePackages, ...reactPackages, ...utilities]
+        const allExternals = [...largeBinaries, ...firebasePackages, ...utilities]
 
         if (allExternals.some(pkg => request?.startsWith(pkg))) {
           return callback(null, `commonjs ${request}`)
