@@ -16,12 +16,11 @@ README.md
 coverage/
 jest.config.*
 
-# 不要な設定ファイル
+# 不要な設定ファイル（Tailwindは除外しない）
 .eslintrc*
 .prettierrc*
-tailwind.config.js
 
-# 大型依存関係のソースファイル
+# 大型依存関係のソースファイルのみ除外
 node_modules/@next/swc-*
 node_modules/re2
 node_modules/@electric-sql/pglite
