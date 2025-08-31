@@ -333,7 +333,9 @@ export default function SkillDetailPage() {
       }
     } else {
       // フォールバック: クリップボードにコピー
-      await navigator.clipboard.writeText(window.location.href)
+      if (typeof window !== 'undefined') {
+        await navigator.clipboard.writeText(window.location.href)
+      }
       alert('リンクをクリップボードにコピーしました')
     }
   }

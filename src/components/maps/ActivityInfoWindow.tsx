@@ -130,7 +130,7 @@ export default function ActivityInfoWindow({
           <!-- アクションボタン -->
           <div class="pt-2 border-t border-gray-200">
             <button 
-              onclick="window.viewActivityDetails('${activity.id}')"
+              onclick="if(typeof window !== 'undefined') window.viewActivityDetails('${activity.id}')"
               class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors"
             >
               詳細を見る

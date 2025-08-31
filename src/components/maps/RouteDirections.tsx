@@ -166,7 +166,9 @@ export function RouteDirections({ activity, userLocation, onClose }: RouteDirect
       selectedMode === 'walking' ? '2' : selectedMode === 'transit' ? '3' : '0'
     }`;
     
-    window.open(url, '_blank');
+    if (typeof window !== 'undefined') {
+      window.open(url, '_blank');
+    }
   };
 
   const selectedRoute = routeOptions.find(option => option.mode === selectedMode);

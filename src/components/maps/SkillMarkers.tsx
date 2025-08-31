@@ -271,7 +271,7 @@ export default function SkillMarkers({
         </div>
         
         <button 
-          onclick="window.dispatchEvent(new CustomEvent('skillInfoWindowClick', { detail: '${skill.id}' }))"
+          onclick="if (typeof window !== 'undefined') { window.dispatchEvent(new CustomEvent('skillInfoWindowClick', { detail: '${skill.id}' })) }"
           style="width: 100%; background: #f97316; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: background-color 0.2s;"
           onmouseover="this.style.background='#ea580c'"
           onmouseout="this.style.background='#f97316'"
@@ -426,10 +426,12 @@ export default function SkillMarkers({
       }
     }
 
-    window.addEventListener('skillInfoWindowClick', handleSkillInfoWindowClick as EventListener)
-    
-    return () => {
-      window.removeEventListener('skillInfoWindowClick', handleSkillInfoWindowClick as EventListener)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('skillInfoWindowClick', handleSkillInfoWindowClick as EventListener)
+      
+      return () => {
+        window.removeEventListener('skillInfoWindowClick', handleSkillInfoWindowClick as EventListener)
+      }
     }
   }, [filteredSkills, onMarkerClick])
 

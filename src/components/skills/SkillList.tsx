@@ -188,7 +188,9 @@ export default function SkillList({
       
       // 実際の実装では react-router や Next.js router を使用
       const messageUrl = `/messages?teacherId=${skill.teacherId}&skillId=${skill.id}&message=${encodeURIComponent(initialMessage)}`
-      window.open(messageUrl, '_blank')
+      if (typeof window !== 'undefined') {
+        window.open(messageUrl, '_blank')
+      }
     } catch (error) {
       console.error('Failed to start contact:', error)
       alert('メッセージの開始に失敗しました')
@@ -207,7 +209,9 @@ export default function SkillList({
       })
     } else {
       // フォールバック: クリップボードにコピー
-      navigator.clipboard.writeText(typeof window !== 'undefined' ? window.location.origin + `/skills/${skill.id}` : `/skills/${skill.id}`)
+      if (typeof window !== 'undefined') {
+        navigator.clipboard.writeText(window.location.origin + `/skills/${skill.id}`)
+      }
       // TODO: トースト通知
       alert('リンクをクリップボードにコピーしました')
     }
