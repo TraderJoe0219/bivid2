@@ -10,8 +10,9 @@ const nextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: ['firebase-admin'],
+    // より具体的にファイル追跡を制限
     outputFileTracingIncludes: {
-      '/api/**/*': ['./node_modules/**/*.wasm', './node_modules/**/*.node'],
+      '/api/auth/**/*': ['./node_modules/firebase-admin/**'],
     },
   },
   // 画像最適化の設定
@@ -82,6 +83,14 @@ const nextConfig = {
         '@next/swc-linux-x64-gnu': 'commonjs @next/swc-linux-x64-gnu',
         're2': 'commonjs re2',
         '@electric-sql/pglite': 'commonjs @electric-sql/pglite',
+        'google-gax': 'commonjs google-gax',
+        '@google-cloud/firestore': 'commonjs @google-cloud/firestore',
+        '@google-cloud/storage': 'commonjs @google-cloud/storage',
+        'firebase-admin': 'commonjs firebase-admin',
+        'node-forge': 'commonjs node-forge',
+        '@firebase/database-compat': 'commonjs @firebase/database-compat',
+        '@unrs/resolver-binding-linux-x64-musl': 'commonjs @unrs/resolver-binding-linux-x64-musl',
+        '@unrs/resolver-binding-linux-x64-gnu': 'commonjs @unrs/resolver-binding-linux-x64-gnu',
       })
     }
 
