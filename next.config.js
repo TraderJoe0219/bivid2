@@ -138,6 +138,27 @@ const nextConfig = {
 
         callback()
       })
+
+      // 定数の問題を回避するため、locationオブジェクトの参照を避ける
+      config.resolve = config.resolve || {}
+      config.resolve.fallback = config.resolve.fallback || {}
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      }
+
+      // SSRでのブラウザAPI参照エラーを回避
+      config.plugins = config.plugins || []
+      config.plugins.push(
+        new (require('webpack')).DefinePlugin({
+          'typeof window': JSON.stringify('undefined'),
+          'typeof location': JSON.stringify('undefined'),
+          'typeof navigator': JSON.stringify('undefined'),
+          'typeof document': JSON.stringify('undefined'),
+        })
+      )
     }
 
     // SVG処理の設定
