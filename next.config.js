@@ -196,7 +196,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.googleapis.com https://*.gstatic.com https://*.google.com https://maps.googleapis.com https://js.stripe.com https://*.firebase.googleapis.com https://*.firebaseapp.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.googleapis.com https://*.gstatic.com https://*.google.com https://maps.googleapis.com https://js.stripe.com https://*.firebase.googleapis.com https://*.firebaseapp.com https://vercel.live",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com https://*.gstatic.com",
               "img-src 'self' data: blob: https: http: https://*.googleapis.com https://*.gstatic.com https://maps.gstatic.com https://maps.googleapis.com https://streetviewpixels-pa.googleapis.com https://geo0.ggpht.com https://geo1.ggpht.com https://geo2.ggpht.com https://geo3.ggpht.com",
@@ -207,6 +207,10 @@ const nextConfig = {
               "base-uri 'self'",
               "form-action 'self'"
             ].join('; ')
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'geolocation=*'
           }
         ],
       },
