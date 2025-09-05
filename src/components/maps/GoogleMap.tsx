@@ -44,6 +44,9 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
   const initializeMap = useCallback(async () => {
     if (!mapRef.current) return;
 
+    // モバイルデバイスの判定
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
     try {
       setIsLoading(true);
       setError(null);
@@ -60,7 +63,18 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
 
       // Google Maps APIの読み込み
       console.log('Google Maps API読み込み開始...');
-      await mapsLoader.load();
+      
+      // モバイルデバイスの場合、タイムアウトを延長
+      const loadTimeout = isMobile ? 15000 : 10000;
+      
+      const loadPromise = mapsLoader.load();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Google Maps APIの読み込みがタイムアウトしました（ネットワークが不安定な可能性があります）'));
+        }, loadTimeout);
+      });
+      
+      await Promise.race([loadPromise, timeoutPromise]);
       console.log('Google Maps API読み込み完了');
 
       // マップオプションの取得
@@ -91,13 +105,14 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
         }
       });
 
-      // タイムアウト設定（10秒後に強制的にローディング終了）
+      // タイムアウト設定（モバイル環境を考慮して延長）
+      const renderTimeout = isMobile ? 15000 : 10000;
       setTimeout(() => {
         if (isLoading) {
-          console.log('地図読み込みタイムアウト');
+          console.log('地図読み込みタイムアウト（レンダリング）');
           setIsLoading(false);
         }
-      }, 10000);
+      }, renderTimeout);
 
     } catch (err) {
       console.error('地図の初期化に失敗しました:', err);
@@ -109,10 +124,14 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
           errorMessage = 'Google Maps APIの設定に問題があります';
         } else if (err.message.includes('quota') || err.message.includes('OVER_QUERY_LIMIT')) {
           errorMessage = 'Google Maps APIの利用制限に達しています';
-        } else if (err.message.includes('network') || err.message.includes('Network')) {
-          errorMessage = 'ネットワークエラーが発生しました';
+        } else if (err.message.includes('network') || err.message.includes('Network') || err.message.includes('タイムアウト')) {
+          errorMessage = isMobile 
+            ? 'ネットワーク接続が不安定です。Wi-Fi環境での利用をお試しください。'
+            : 'ネットワークエラーが発生しました';
         } else if (err.message.includes('REQUEST_DENIED')) {
           errorMessage = 'Google Maps APIへのアクセスが拒否されました';
+        } else if (err.message.includes('INVALID_REQUEST')) {
+          errorMessage = 'Google Maps APIリクエストが無効です';
         }
       }
       
@@ -129,9 +148,10 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
     markersRef.current.forEach(marker => marker.setMap(null));
     markersRef.current = [];
 
-    // 新しいマーカーを追加（従来のMarkerを使用）
+    // 新しいマーカーを追加（モバイル対応のレガシーMarkerを使用 - AdvancedMarkerはまだ不安定）
     markers.forEach(markerData => {
-      const marker = new google.maps.Marker({
+      // レガシーMarkerを一時的に使用（モバイル互換性のため）
+      const marker = new (google.maps as any).Marker({
         position: markerData.position,
         map: mapInstanceRef.current,
         title: markerData.title,
@@ -145,7 +165,10 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
           `)}`,
           scaledSize: new google.maps.Size(40, 50),
           anchor: new google.maps.Point(20, 50)
-        }
+        },
+        // モバイル向けの最適化
+        optimized: true,
+        clickable: true
       });
 
       // マーカークリックイベント

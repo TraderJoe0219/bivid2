@@ -23,32 +23,53 @@ export const mapsLoader = new Loader({
   libraries: ['places', 'geometry'],
   retries: 3,
   language: 'ja',
-  region: 'JP'
+  region: 'JP',
+  // モバイルでのパフォーマンス向上のための設定
+  mapIds: [], // 必要に応じてカスタムマップIDを指定
+  // Channel/Client IDは必要に応じて設定
+  // channel: 'your-channel-name'
 });
 
 
 // 地図の初期化オプション
-export const getMapOptions = (center = DEFAULT_CENTER): google.maps.MapOptions => ({
-  center,
-  zoom: DEFAULT_ZOOM,
-  mapTypeId: google.maps.MapTypeId.ROADMAP,
-  zoomControl: true,
-  mapTypeControl: false,
-  scaleControl: true,
-  streetViewControl: false,
-  rotateControl: false,
-  fullscreenControl: true,
-  // 高齢者向けのUI設定
-  gestureHandling: 'cooperative', // スクロール時の誤操作を防ぐ
-  disableDefaultUI: false,
-  styles: [
-    {
-      featureType: 'poi',
-      elementType: 'labels.text',
-      stylers: [{ visibility: 'on' }]
-    }
-  ]
-});
+export const getMapOptions = (center = DEFAULT_CENTER): google.maps.MapOptions => {
+  // モバイルデバイスの判定
+  const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  
+  return {
+    center,
+    zoom: DEFAULT_ZOOM,
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    zoomControl: true,
+    mapTypeControl: false,
+    scaleControl: !isMobile, // モバイルでは非表示
+    streetViewControl: false,
+    rotateControl: false,
+    fullscreenControl: !isMobile, // モバイルでは非表示
+    // 高齢者向けのUI設定
+    gestureHandling: 'cooperative', // スクロール時の誤操作を防ぐ
+    disableDefaultUI: false,
+    // モバイル向けの追加設定
+    clickableIcons: true,
+    backgroundColor: '#f5f5f5',
+    styles: [
+      {
+        featureType: 'poi',
+        elementType: 'labels.text',
+        stylers: [{ visibility: 'on' }]
+      },
+      // モバイルでの視認性向上
+      {
+        featureType: 'road',
+        elementType: 'labels.text',
+        stylers: [{ 
+          visibility: 'on',
+          color: '#333333'
+        }]
+      }
+    ]
+  };
+};
 
 // 現在地を取得する関数
 export const getCurrentLocation = (): Promise<GeolocationPosition> => {
