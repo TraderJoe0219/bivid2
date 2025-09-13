@@ -21,6 +21,7 @@ export interface AuthFormData {
   displayName?: string
   confirmPassword?: string
   agreeToTerms?: boolean
+  agreeToPrivacy?: boolean
 }
 
 export function AuthForm({ mode, onSubmit, loading, error }: AuthFormProps) {
@@ -41,7 +42,8 @@ export function AuthForm({ mode, onSubmit, loading, error }: AuthFormProps) {
       password: '',
       displayName: '',
       confirmPassword: '',
-      agreeToTerms: false
+      agreeToTerms: false,
+      agreeToPrivacy: false
     }
   })
 
@@ -199,30 +201,63 @@ export function AuthForm({ mode, onSubmit, loading, error }: AuthFormProps) {
         </div>
       )}
 
-      {/* 利用規約同意（新規登録の場合） */}
+      {/* 利用規約・プライバシーポリシー同意（新規登録の場合） */}
       {isSignup && (
-        <div className="flex items-start space-x-3">
-          <input
-            id="agreeToTerms"
-            type="checkbox"
-            {...register('agreeToTerms')}
-            className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            disabled={loading}
-          />
-          <label htmlFor="agreeToTerms" className="text-lg text-gray-700">
-            <a href="/terms" className="text-blue-600 hover:text-blue-500 underline" target="_blank">
-              利用規約
-            </a>
-            と
-            <a href="/privacy" className="text-blue-600 hover:text-blue-500 underline" target="_blank">
-              プライバシーポリシー
-            </a>
-            に同意します <span className="text-red-500">*</span>
-          </label>
+        <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <p className="text-lg font-medium text-gray-900 mb-3">
+            利用規約とプライバシーポリシーへの同意 <span className="text-red-500">*</span>
+          </p>
+          
+          {/* 利用規約への同意 */}
+          <div className="flex items-start space-x-3">
+            <input
+              id="agreeToTerms"
+              type="checkbox"
+              {...register('agreeToTerms')}
+              className="mt-1 w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 focus:ring-2"
+              disabled={loading}
+            />
+            <label htmlFor="agreeToTerms" className="text-lg text-gray-700 cursor-pointer">
+              <a 
+                href="/terms" 
+                className="text-orange-600 hover:text-orange-500 underline font-medium" 
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                利用規約
+              </a>
+              に同意します
+            </label>
+          </div>
+          {errors.agreeToTerms && (
+            <p className="text-red-600 text-base ml-8">{errors.agreeToTerms.message}</p>
+          )}
+
+          {/* プライバシーポリシーへの同意 */}
+          <div className="flex items-start space-x-3">
+            <input
+              id="agreeToPrivacy"
+              type="checkbox"
+              {...register('agreeToPrivacy')}
+              className="mt-1 w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 focus:ring-2"
+              disabled={loading}
+            />
+            <label htmlFor="agreeToPrivacy" className="text-lg text-gray-700 cursor-pointer">
+              <a 
+                href="/privacy" 
+                className="text-orange-600 hover:text-orange-500 underline font-medium" 
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                個人情報保護方針（プライバシーポリシー）
+              </a>
+              に同意します
+            </label>
+          </div>
+          {errors.agreeToPrivacy && (
+            <p className="text-red-600 text-base ml-8">{errors.agreeToPrivacy.message}</p>
+          )}
         </div>
-      )}
-      {isSignup && errors.agreeToTerms && (
-        <p className="text-red-600 text-lg">{errors.agreeToTerms.message}</p>
       )}
 
       {/* 送信ボタン */}

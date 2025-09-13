@@ -86,7 +86,10 @@ export const signUpSchema = z.object({
     .regex(/^[a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u002B\u002A\u0021\u003F\u005F\u002D\u0020]+$/, '表示名に使用できない文字が含まれています'),
   agreeToTerms: z
     .boolean()
-    .refine((val) => val === true, '利用規約に同意してください')
+    .refine((val) => val === true, '利用規約への同意が必要です'),
+  agreeToPrivacy: z
+    .boolean()
+    .refine((val) => val === true, '個人情報保護方針への同意が必要です')
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'パスワードが一致しません',
   path: ['confirmPassword']
