@@ -4,9 +4,15 @@ import Link from 'next/link'
 import { Search, Users, BookOpen, Heart, ArrowRight } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { Logo } from '@/components/ui/Logo'
+import { getRandomSkills, getDemoStats } from '@/lib/sampleData'
+import { HeroCTAs } from '@/components/HeroCTAs'
 
 export default function HomePage() {
   const { user } = useAuthStore()
+
+  // サンプルデータを取得
+  const featuredSkills = getRandomSkills(2) // 2件のランダムスキル
+  const stats = getDemoStats()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-pink-50">
@@ -16,30 +22,48 @@ export default function HomePage() {
       <main>
         {/* ヒーローセクション */}
         <section className="py-20 bg-gradient-to-r from-white via-blue-50 to-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-5xl font-bold text-gray-900 mb-8">
-              人生経験を活かして<br />
-              <span className="text-blue-600">新しいこと</span>を学びませんか？
-            </h1>
-            <p className="text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
-              Bividは、豊富な人生経験を持つ方々が互いにスキルを教え合い、<br className="hidden sm:inline" />
-              新しい学びと温かなつながりを得られるプラットフォームです。
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center max-w-2xl mx-auto">
-              <Link 
-                href="/skills/search"
-                className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xl px-10 py-5 min-h-[60px] gap-3 w-full sm:w-auto rounded-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <Search className="w-7 h-7" />
-                <span>スキルを探す</span>
-              </Link>
-              <Link 
-                href="/teach"
-                className="flex items-center justify-center bg-pink-600 hover:bg-pink-700 text-white font-semibold text-xl px-10 py-5 min-h-[60px] gap-3 w-full sm:w-auto rounded-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
-              >
-                <BookOpen className="w-7 h-7" />
-                <span>教える</span>
-              </Link>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* テキストコンテンツ */}
+              <div className="text-center lg:text-left">
+                <h1 className="text-6xl lg:text-7xl font-bold text-gray-900 mb-10 leading-tight">
+                  <span className="text-[#0071bc] drop-shadow-sm">できることが、</span><br />
+                  <span className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">地域を支える力になる。</span>
+                </h1>
+                <p className="text-2xl text-gray-600 mb-10 max-w-4xl leading-relaxed font-medium">
+                  得意なことを登録、頼みたいことを投稿。<br className="hidden sm:inline" />
+                  <span className="text-[#ed1e79] font-semibold">AI</span>が最適な相手をマッチングします。
+                </p>
+                <div className="bg-blue-50 border-l-4 border-[#0071bc] rounded-r-2xl p-6 mb-12 max-w-2xl">
+                  <p className="text-lg text-gray-700 font-medium">
+                    <span className="text-[#0071bc]">✓</span> 本人確認・レビュー・保険サポートで安全にご利用いただけます
+                  </p>
+                </div>
+                <HeroCTAs
+                  audience="general"
+                  segmented={process.env.NEXT_PUBLIC_EXPERIMENT_HERO_CTA_V1 === "segmented"}
+                  className="justify-center lg:justify-start"
+                />
+              </div>
+
+              {/* 画像 */}
+              <div className="relative order-first lg:order-last">
+                <div className="aspect-[4/3] relative overflow-hidden rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-500">
+                  <img
+                    src="/hero-community.jpg"
+                    alt="地域の皆さんが笑顔で交流している様子"
+                    className="w-full h-full object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4">
+                      <p className="text-sm font-medium text-gray-800">
+                        地域の皆さんが笑顔で交流
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>

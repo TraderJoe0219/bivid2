@@ -3,7 +3,7 @@
 import React from 'react';
 import { MapPin, Clock, DollarSign, User, Star, Calendar } from 'lucide-react';
 import { SocialActivity } from '@/lib/socialActivities';
-import { formatDistance } from '@/lib/maps';
+import { formatDistance } from '@/lib/distance';
 
 interface MapSearchResultsProps {
   activities: SocialActivity[];
@@ -62,16 +62,21 @@ export function MapSearchResults({
 
   if (activities.length === 0) {
     return (
-      <div className={`bg-white rounded-lg shadow-md p-6 text-center ${className}`}>
-        <div className="text-gray-400 mb-4">
-          <MapPin className="w-12 h-12 mx-auto" />
+      <div className={`bg-white rounded-lg shadow-md p-8 text-center ${className}`}>
+        <div className="text-elder-text-muted mb-6">
+          <MapPin className="w-16 h-16 mx-auto" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
-          検索結果が見つかりません
+        <h3 className="text-xl font-semibold text-elder-text-primary mb-3">
+          近くにまだ講座がありません
         </h3>
-        <p className="text-gray-600">
-          検索条件を変更して再度お試しください
+        <p className="text-elder-text-muted mb-6">
+          検索エリアを広げるか、条件を変更してお試しください
         </p>
+        <div className="space-y-2 text-sm text-elder-text-muted">
+          <p>• 検索範囲を広げてみる</p>
+          <p>• カテゴリを変更してみる</p>
+          <p>• オンラインレッスンも含めて検索する</p>
+        </div>
       </div>
     );
   }

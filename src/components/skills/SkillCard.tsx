@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { 
-  Star, 
-  MapPin, 
-  Clock, 
-  Users, 
+import {
+  Star,
+  MapPin,
+  Clock,
+  Users,
   Heart,
   ChevronRight,
   Calendar,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Skill, SKILL_CATEGORIES } from '@/types/skill'
+import { formatDistance } from '@/lib/distance'
 
 interface SkillCardProps {
   skill: Skill
@@ -233,11 +234,11 @@ export default function SkillCard({
               </span>
             </div>
             
-            {showDistance && distance !== undefined && (
+            {showDistance && distance !== undefined && distance !== Infinity && (
               <div className="flex items-center space-x-1">
                 <MapPin className="w-4 h-4 text-gray-400" />
                 <span className="text-xs text-gray-600">
-                  {distance.toFixed(1)}km
+                  {formatDistance(distance)}
                 </span>
               </div>
             )}

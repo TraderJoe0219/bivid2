@@ -3,8 +3,12 @@
 import React from 'react';
 import { SkillMapSearch } from '@/components/maps/SkillMapSearch';
 import { MapPin, Users, Search, Lightbulb } from 'lucide-react';
+import { getSkillCountByCategory } from '@/lib/sampleData';
 
 export default function SkillSearchPage() {
+  // 実際のサンプルデータからカテゴリ別件数を取得
+  const skillCounts = getSkillCountByCategory();
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ヘッダー */}
@@ -83,12 +87,12 @@ export default function SkillSearchPage() {
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {[
-              { name: '料理', emoji: '🍳', count: 45 },
-              { name: '園芸', emoji: '🌱', count: 32 },
-              { name: '手芸', emoji: '🧵', count: 28 },
-              { name: '音楽', emoji: '🎵', count: 24 },
-              { name: '語学', emoji: '🗣️', count: 19 },
-              { name: 'IT', emoji: '💻', count: 15 }
+              { name: '料理・お菓子作り', emoji: '🍳', key: '料理・お菓子作り' },
+              { name: '園芸・ガーデニング', emoji: '🌱', key: '園芸・ガーデニング' },
+              { name: '手芸・裁縫', emoji: '🧵', key: '手芸・裁縫' },
+              { name: '楽器演奏', emoji: '🎵', key: '楽器演奏' },
+              { name: 'パソコン・スマホ', emoji: '💻', key: 'パソコン・スマホ' },
+              { name: '書道・絵画', emoji: '🎨', key: '書道・絵画' }
             ].map(category => (
               <div
                 key={category.name}
@@ -96,7 +100,7 @@ export default function SkillSearchPage() {
               >
                 <div className="text-3xl mb-2">{category.emoji}</div>
                 <h3 className="font-semibold text-gray-800 mb-1">{category.name}</h3>
-                <p className="text-sm text-gray-600">{category.count}人</p>
+                <p className="text-sm text-gray-600">{skillCounts[category.key] || 0}人</p>
               </div>
             ))}
           </div>

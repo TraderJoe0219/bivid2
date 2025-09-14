@@ -1,3 +1,9 @@
+// 地理的位置情報
+export interface GeoPoint {
+  latitude: number
+  longitude: number
+}
+
 // ユーザー関連の型
 export interface User {
   id: string
@@ -7,6 +13,7 @@ export interface User {
   bio?: string
   age?: number
   location?: string
+  coordinates?: GeoPoint
   skills: string[]
   interests: string[]
   rating: number
@@ -26,6 +33,7 @@ export interface Skill {
   price: number
   duration: number // 分単位
   location: string
+  coordinates?: GeoPoint
   isOnline: boolean
   maxStudents: number
   currentStudents: number
@@ -37,6 +45,7 @@ export interface Skill {
   isActive: boolean
   createdAt: Date
   updatedAt: Date
+  distance?: number // km単位（検索時に計算）
 }
 
 // スキルカテゴリ
@@ -122,6 +131,8 @@ export interface Conversation {
 export interface SearchFilters {
   category?: SkillCategory
   location?: string
+  coordinates?: GeoPoint
+  radius?: number // km単位
   priceRange?: {
     min: number
     max: number
@@ -129,6 +140,7 @@ export interface SearchFilters {
   difficulty?: 'beginner' | 'intermediate' | 'advanced'
   isOnline?: boolean
   rating?: number
+  sortBy?: 'distance' | 'rating' | 'price' | 'newest'
 }
 
 export interface SearchResult {

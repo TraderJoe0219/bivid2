@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 import { GoogleMap } from './GoogleMap';
 import { MapSearch } from './MapSearch';
 import { Search, Filter, Users, Star, MapPin, Clock, ExternalLink } from 'lucide-react';
-import { DEFAULT_CENTER, calculateDistance } from '@/lib/maps';
+import { DEFAULT_CENTER } from '@/lib/maps';
+import { getSampleSkills } from '@/lib/sampleData';
+import { calculateDistance } from '@/lib/distance';
+import { TOYONAKA_CENTER } from '@/lib/sampleDataToyonaka';
 
 // スキル提供者の型定義
 interface SkillProvider {
@@ -38,55 +41,35 @@ interface SkillMapSearchProps {
   className?: string;
 }
 
-// サンプルデータ（実際はFirestoreから取得）
-const sampleProviders: SkillProvider[] = [
-  {
-    id: '1',
-    name: '田中 花子',
-    skills: ['料理', '和食', '家庭料理'],
-    rating: 4.8,
-    reviewCount: 24,
+// 豊中市のサンプルデータを変換
+function convertSkillsToProviders(): SkillProvider[] {
+  const skills = getSampleSkills();
+
+  return skills.map(skill => ({
+    id: skill.id,
+    name: skill.teacher.displayName,
+    avatar: skill.teacher.photoURL,
+    skills: [skill.category, ...skill.tags.slice(0, 2)], // カテゴリ + タグ2つ
+    rating: skill.rating,
+    reviewCount: skill.reviewCount,
     location: {
-      lat: 35.6434,
-      lng: 139.6690,
-      address: '東京都世田谷区三軒茶屋'
+      lat: skill.coordinates?.latitude || skill.teacher.coordinates?.latitude || TOYONAKA_CENTER.latitude,
+      lng: skill.coordinates?.longitude || skill.teacher.coordinates?.longitude || TOYONAKA_CENTER.longitude,
+      address: skill.location || skill.teacher.location || '豊中市'
     },
-    price: 3500,
-    availability: ['平日午前', '土日']
-  },
-  {
-    id: '2',
-    name: '鈴木 一郎',
-    skills: ['園芸', 'ガーデニング', '野菜作り'],
-    rating: 4.6,
-    reviewCount: 15,
-    location: {
-      lat: 35.6221,
-      lng: 139.5463,
-      address: '神奈川県川崎市多摩区'
-    },
-    price: 2500,
-    availability: ['平日午後', '土日']
-  },
-  {
-    id: '3',
-    name: '山田 美代子',
-    skills: ['編み物', '手芸', '洋裁'],
-    rating: 4.9,
-    reviewCount: 31,
-    location: {
-      lat: 35.6580,
-      lng: 139.7016,
-      address: '東京都渋谷区恵比寿'
-    },
-    price: 1800,
-    availability: ['平日午前', '平日午後']
-  }
-];
+    price: skill.price,
+    availability: ['平日午前', '平日午後', '土日'].slice(0, Math.floor(Math.random() * 3) + 1) // ランダムに1-3個
+  }));
+}
+
+const sampleProviders: SkillProvider[] = convertSkillsToProviders();
 
 export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }) => {
   const router = useRouter();
-  const [center, setCenter] = useState<google.maps.LatLngLiteral>(DEFAULT_CENTER);
+  const [center, setCenter] = useState<google.maps.LatLngLiteral>({
+    lat: TOYONAKA_CENTER.latitude,
+    lng: TOYONAKA_CENTER.longitude
+  });
   const [providers, setProviders] = useState<SkillProvider[]>(sampleProviders);
   const [filteredProviders, setFilteredProviders] = useState<SkillProvider[]>(sampleProviders);
   const [selectedProvider, setSelectedProvider] = useState<SkillProvider | null>(null);
@@ -103,9 +86,12 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
   const calculateDistances = useCallback((userLoc: google.maps.LatLngLiteral) => {
     const providersWithDistance = providers.map(provider => ({
       ...provider,
-      distance: calculateDistance(userLoc, provider.location) / 1000 // km変換
+      distance: calculateDistance(
+        { latitude: userLoc.lat, longitude: userLoc.lng },
+        { latitude: provider.location.lat, longitude: provider.location.lng }
+      ) // km単位で返される
     }));
-    
+
     setProviders(providersWithDistance);
   }, [providers]);
 
