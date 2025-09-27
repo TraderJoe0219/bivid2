@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Loading } from '@/components/Loading'
 import { SkillCategory } from '@/types'
+import { prefectures } from '@/lib/validations/auth'
+import { Calendar, MapPin, User, Camera, AlertCircle } from 'lucide-react'
 
 const skillCategories: SkillCategory[] = [
   '料理・お菓子作り',
@@ -21,16 +23,37 @@ const skillCategories: SkillCategory[] = [
   'その他'
 ]
 
+interface ProfileFormData {
+  firstName: string
+  lastName: string
+  dateOfBirth: string
+  gender: 'male' | 'female' | 'other'
+  prefecture: string
+  city: string
+  area: string
+  postalCode: string
+  bio: string
+  skills: string[]
+  interests: string[]
+}
+
 export default function ProfileSetupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [formData, setFormData] = useState({
-    displayName: '',
+  const [step, setStep] = useState(1)
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState<string | null>(null)
+  const [formData, setFormData] = useState<ProfileFormData>({
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    gender: 'male',
+    prefecture: '',
+    city: '',
+    area: '',
+    postalCode: '',
     bio: '',
-    age: '',
-    location: '',
-    skills: [] as string[],
-    interests: [] as string[]
+    skills: [],
+    interests: []
   })
   
   const router = useRouter()
@@ -47,33 +70,30 @@ export default function ProfileSetupPage() {
       router.push('/')
       return
     }
-
-    // Firebase Authから基本情報を取得
-    if (user.displayName) {
-      setFormData(prev => ({
-        ...prev,
-        displayName: user.displayName || ''
-      }))
-    }
   }, [user, userProfile, router])
 
   if (!user) {
     return <Loading />
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
     try {
       const profileData = {
-        displayName: formData.displayName,
-        bio: formData.bio,
-        age: formData.age ? parseInt(formData.age) : undefined,
-        location: formData.location,
-        skills: formData.skills,
-        interests: formData.interests
+        ...formData,
+        displayName: `${formData.lastName} ${formData.firstName}`,
+        fullName: `${formData.lastName} ${formData.firstName}`,
+        age: formData.dateOfBirth ? new Date().getFullYear() - new Date(formData.dateOfBirth).getFullYear() : undefined,
+        location: `${formData.prefecture} ${formData.city}`,
+        address: {
+          prefecture: formData.prefecture,
+          city: formData.city,
+          area: formData.area,
+          postalCode: formData.postalCode
+        }
       }
 
       const { error: updateError } = await updateUserProfile(user.uid, profileData)
@@ -108,6 +128,14 @@ export default function ProfileSetupPage() {
     }))
   }
 
+  const nextStep = () => {
+    if (step < 3) setStep(step + 1)
+  }
+
+  const prevStep = () => {
+    if (step > 1) setStep(step - 1)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
@@ -118,125 +146,290 @@ export default function ProfileSetupPage() {
           <p className="text-lg text-gray-600">
             あなたのことを教えてください
           </p>
+          <div className="flex justify-center mt-4">
+            <div className="flex space-x-2">
+              {[1, 2, 3].map((stepNumber) => (
+                <div
+                  key={stepNumber}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                    step >= stepNumber
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {stepNumber}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white shadow-xl rounded-xl p-8">
+        <div className="bg-white shadow-lg rounded-lg p-8">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700 text-base">{error}</p>
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md flex items-center">
+              <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+              <span className="text-red-700">{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* 基本情報 */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">基本情報</h2>
+          <form onSubmit={handleFormSubmit}>
+            {step === 1 && (
               <div className="space-y-6">
-                <Input
-                  label="お名前 *"
-                  value={formData.displayName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, displayName: e.target.value }))}
-                  placeholder="山田太郎"
-                  required
-                />
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  基本情報
+                </h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      姓
+                    </label>
+                    <Input
+                      type="text"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                      placeholder="田中"
+                      required
+                      className="text-lg p-3"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      名
+                    </label>
+                    <Input
+                      type="text"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                      placeholder="太郎"
+                      required
+                      className="text-lg p-3"
+                    />
+                  </div>
+                </div>
 
                 <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Calendar className="inline h-4 w-4 mr-1" />
+                    生年月日
+                  </label>
+                  <Input
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                    required
+                    className="text-lg p-3"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    性別
+                  </label>
+                  <div className="flex space-x-4">
+                    {[
+                      { value: 'male', label: '男性' },
+                      { value: 'female', label: '女性' },
+                      { value: 'other', label: 'その他' }
+                    ].map((option) => (
+                      <label key={option.value} className="flex items-center">
+                        <input
+                          type="radio"
+                          name="gender"
+                          value={option.value}
+                          checked={formData.gender === option.value}
+                          onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value as 'male' | 'female' | 'other' }))}
+                          className="mr-2"
+                        />
+                        <span className="text-lg">{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    className="px-8 py-3 text-lg"
+                  >
+                    次へ
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  <MapPin className="inline h-5 w-5 mr-2" />
+                  住所情報
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      都道府県
+                    </label>
+                    <select
+                      value={formData.prefecture}
+                      onChange={(e) => setFormData(prev => ({ ...prev, prefecture: e.target.value }))}
+                      required
+                      className="w-full p-3 text-lg border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">選択してください</option>
+                      {prefectures.map((pref) => (
+                        <option key={pref} value={pref}>
+                          {pref}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      市区町村
+                    </label>
+                    <Input
+                      type="text"
+                      value={formData.city}
+                      onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                      placeholder="豊中市"
+                      required
+                      className="text-lg p-3"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      町域・番地
+                    </label>
+                    <Input
+                      type="text"
+                      value={formData.area}
+                      onChange={(e) => setFormData(prev => ({ ...prev, area: e.target.value }))}
+                      placeholder="本町1-2-3"
+                      className="text-lg p-3"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      郵便番号
+                    </label>
+                    <Input
+                      type="text"
+                      value={formData.postalCode}
+                      onChange={(e) => setFormData(prev => ({ ...prev, postalCode: e.target.value }))}
+                      placeholder="560-0021"
+                      pattern="[0-9]{3}-[0-9]{4}"
+                      className="text-lg p-3"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     自己紹介
                   </label>
                   <textarea
                     value={formData.bio}
                     onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                    placeholder="あなたの趣味や特技、どんなことに興味があるかを教えてください..."
                     rows={4}
-                    className="block w-full px-4 py-3 text-base border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    placeholder="あなたの趣味や特技、Bividで何をしたいかなどを教えてください"
+                    className="w-full p-3 text-lg border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input
-                    label="年齢"
-                    type="number"
-                    value={formData.age}
-                    onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value }))}
-                    placeholder="65"
-                    min="18"
-                    max="120"
-                  />
-
-                  <Input
-                    label="お住まいの地域"
-                    value={formData.location}
-                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                    placeholder="東京都世田谷区"
-                  />
+                <div className="flex justify-between">
+                  <Button
+                    type="button"
+                    onClick={prevStep}
+                    variant="secondary"
+                    className="px-8 py-3 text-lg"
+                  >
+                    戻る
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    className="px-8 py-3 text-lg"
+                  >
+                    次へ
+                  </Button>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* スキル選択 */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                教えられるスキル
-              </h2>
-              <p className="text-gray-600 mb-4">
-                あなたが他の人に教えることができるスキルを選択してください
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {skillCategories.map((skill) => (
-                  <button
-                    key={skill}
+            {step === 3 && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  スキル・興味
+                </h2>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    あなたのスキル（複数選択可）
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {skillCategories.map((skill) => (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() => handleSkillToggle(skill)}
+                        className={`p-3 text-sm rounded-lg border-2 transition-colors ${
+                          formData.skills.includes(skill)
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        {skill}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    興味のある分野（複数選択可）
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {skillCategories.map((interest) => (
+                      <button
+                        key={interest}
+                        type="button"
+                        onClick={() => handleInterestToggle(interest)}
+                        className={`p-3 text-sm rounded-lg border-2 transition-colors ${
+                          formData.interests.includes(interest)
+                            ? 'border-green-500 bg-green-50 text-green-700'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        {interest}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-between">
+                  <Button
                     type="button"
-                    onClick={() => handleSkillToggle(skill)}
-                    className={`p-3 text-sm font-medium rounded-lg border transition-colors ${
-                      formData.skills.includes(skill)
-                        ? 'bg-orange-100 border-orange-300 text-orange-700'
-                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                    }`}
+                    onClick={prevStep}
+                    variant="secondary"
+                    className="px-8 py-3 text-lg"
                   >
-                    {skill}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 興味のあるスキル */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                学びたいスキル
-              </h2>
-              <p className="text-gray-600 mb-4">
-                あなたが学んでみたいスキルを選択してください
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {skillCategories.map((interest) => (
-                  <button
-                    key={interest}
-                    type="button"
-                    onClick={() => handleInterestToggle(interest)}
-                    className={`p-3 text-sm font-medium rounded-lg border transition-colors ${
-                      formData.interests.includes(interest)
-                        ? 'bg-blue-100 border-blue-300 text-blue-700'
-                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                    }`}
+                    戻る
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="px-8 py-3 text-lg"
                   >
-                    {interest}
-                  </button>
-                ))}
+                    {loading ? '保存中...' : 'プロフィールを保存'}
+                  </Button>
+                </div>
               </div>
-            </div>
-
-            {/* 送信ボタン */}
-            <div className="pt-6">
-              <Button
-                type="submit"
-                loading={loading}
-                className="w-full"
-                size="lg"
-              >
-                プロフィールを保存してBividを始める
-              </Button>
-            </div>
+            )}
           </form>
         </div>
       </div>
