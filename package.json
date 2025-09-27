@@ -13,6 +13,7 @@
     "test:coverage": "jest --coverage",
     "seed": "tsx scripts/seed-firestore.ts",
     "seed:toyonaka": "tsx scripts/seed-toyonaka-data.ts",
+    "seed:activities": "tsx scripts/seed-activities.ts",
     "firebase:deploy": "firebase deploy",
     "firebase:rules": "firebase deploy --only firestore:rules,storage"
   },

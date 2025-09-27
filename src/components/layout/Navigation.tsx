@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Home, Search, Map, LogIn, UserPlus, User, LogOut } from 'lucide-react';
+import { Menu, X, Home, Search, Map, LogIn, UserPlus, User, LogOut, Calendar, Compass } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/ui/Logo';
@@ -17,6 +17,11 @@ export const Navigation: React.FC = () => {
     { href: '/', label: 'ホーム', icon: Home },
     { href: '/skills/search', label: 'スキル検索', icon: Search },
     { href: '/map', label: '地図検索', icon: Map },
+    ...(user ? [
+      { href: '/me', label: 'プロフィール', icon: User },
+      { href: '/me/schedule', label: 'スケジュール', icon: Calendar },
+      { href: '/discover', label: 'おすすめ', icon: Compass },
+    ] : []),
   ];
 
   const handleSignOut = async () => {
@@ -30,7 +35,6 @@ export const Navigation: React.FC = () => {
 
   const authItems = user
     ? [
-        { href: '/profile', label: 'プロフィール', icon: User },
         { href: '#', label: 'ログアウト', icon: LogOut, onClick: handleSignOut },
       ]
     : [
@@ -73,22 +77,13 @@ export const Navigation: React.FC = () => {
             {/* 認証関連リンク */}
             <div className="flex items-center space-x-3">
               {user ? (
-                <>
-                  <Link
-                    href="/profile"
-                    className="nav-link"
-                  >
-                    <User className="w-5 h-5 mr-2" />
-                    プロフィール
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className="nav-link hover:text-elder-error focus-visible:ring-elder-error"
-                  >
-                    <LogOut className="w-5 h-5 mr-2" />
-                    ログアウト
-                  </button>
-                </>
+                <button
+                  onClick={handleSignOut}
+                  className="nav-link hover:text-elder-error focus-visible:ring-elder-error"
+                >
+                  <LogOut className="w-5 h-5 mr-2" />
+                  ログアウト
+                </button>
               ) : (
                 <>
                   <Link
@@ -157,23 +152,13 @@ export const Navigation: React.FC = () => {
               {/* 認証関連リンク */}
               <div className="pt-4 border-t border-elder-border-light space-y-2">
                 {user ? (
-                  <>
-                    <Link
-                      href="/profile"
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center px-4 py-3 text-elder-text-secondary hover:bg-elder-bg-accent hover:text-elder-interactive-primary transition-colors rounded-elder-lg touch-target"
-                    >
-                      <User className="w-6 h-6 mr-3" />
-                      プロフィール
-                    </Link>
-                    <button
-                      onClick={handleSignOut}
-                      className="flex items-center w-full px-4 py-3 text-elder-text-secondary hover:bg-elder-bg-accent hover:text-elder-error transition-colors rounded-elder-lg touch-target"
-                    >
-                      <LogOut className="w-6 h-6 mr-3" />
-                      ログアウト
-                    </button>
-                  </>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center w-full px-4 py-3 text-elder-text-secondary hover:bg-elder-bg-accent hover:text-elder-error transition-colors rounded-elder-lg touch-target"
+                  >
+                    <LogOut className="w-6 h-6 mr-3" />
+                    ログアウト
+                  </button>
                 ) : (
                   <>
                     <Link
