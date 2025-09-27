@@ -8,7 +8,7 @@ export type AvailabilityStatus = 'all_day' | 'am' | 'pm' | 'none'
 export interface DailyAvailability {
   date: string // "2025-10-03" 形式
   status: AvailabilityStatus
-  updatedAt: Timestamp
+  updatedAt: Date
 }
 
 // 月間空き状況

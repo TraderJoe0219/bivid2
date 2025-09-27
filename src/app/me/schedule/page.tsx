@@ -32,24 +32,25 @@ export default function SchedulePage() {
     }
   }, [user, authLoading, router])
 
-  // 月が変わったときに空き状況を取得
-  useEffect(() => {
-    if (user) {
-      fetchAvailability(currentDate.year, currentDate.month)
-    }
-  }, [user, currentDate])
-
   // 空き状況取得
-  const fetchAvailability = async (year: number, month: number) => {
+  const fetchAvailability = useCallback(async (year: number, month: number) => {
     try {
       setIsLoading(true)
       setError(null)
+
+      if (!user) {
+        throw new Error('認証が必要です')
+      }
+
+      // Firebase IDトークンを取得
+      const idToken = await user.getIdToken()
 
       const monthParam = `${year}-${month.toString().padStart(2, '0')}`
       const response = await fetch(`/api/availability?month=${monthParam}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
         },
       })
 
@@ -65,11 +66,24 @@ export default function SchedulePage() {
       }
     } catch (error) {
       console.error('スケジュール取得エラー:', error)
-      setError(error instanceof Error ? error.message : 'エラーが発生しました')
+      const errorMessage = error instanceof Error ? error.message : 'エラーが発生しました'
+      console.error('詳細エラー情報:', {
+        error,
+        message: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined
+      })
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [user])
+
+  // 月が変わったときに空き状況を取得
+  useEffect(() => {
+    if (user) {
+      fetchAvailability(currentDate.year, currentDate.month)
+    }
+  }, [user, currentDate, fetchAvailability])
 
   // 月変更
   const handleMonthChange = useCallback((year: number, month: number) => {
@@ -82,10 +96,18 @@ export default function SchedulePage() {
       setIsUpdating(true)
       setError(null)
 
+      if (!user) {
+        throw new Error('認証が必要です')
+      }
+
+      // Firebase IDトークンを取得
+      const idToken = await user.getIdToken()
+
       const response = await fetch('/api/availability', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
         },
         body: JSON.stringify({ date, status }),
       })
@@ -125,7 +147,7 @@ export default function SchedulePage() {
     } finally {
       setIsUpdating(false)
     }
-  }, [])
+  }, [user])
 
   // 認証中の場合
   if (authLoading) {

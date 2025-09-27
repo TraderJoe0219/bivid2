@@ -88,6 +88,12 @@ export function ScheduleCalendar({
       await onStatusChange(date, newStatus)
     } catch (error) {
       console.error('スケジュール更新エラー:', error)
+      console.error('詳細エラー情報:', {
+        error,
+        date,
+        newStatus,
+        stack: error instanceof Error ? error.stack : undefined
+      })
     } finally {
       setUpdatingDates(prev => {
         const newSet = new Set(prev)
