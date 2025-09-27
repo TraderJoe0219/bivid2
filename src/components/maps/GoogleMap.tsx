@@ -179,12 +179,7 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({
 
         // InfoWindow表示
         if (markerData.info && infoWindowRef.current) {
-          infoWindowRef.current.setContent(`
-            <div class="p-2">
-              <h3 class="font-bold text-lg mb-1">${markerData.title || ''}</h3>
-              <p class="text-sm text-gray-600">${markerData.info}</p>
-            </div>
-          `);
+          infoWindowRef.current.setContent(markerData.info);
           infoWindowRef.current.open(mapInstanceRef.current, marker);
         }
       });

@@ -31,10 +31,14 @@ interface SkillProvider {
 // フィルター条件の型定義
 interface SearchFilters {
   skill: string;
+  category: string;
   maxDistance: number;
   minRating: number;
   maxPrice: number;
+  minPrice: number;
   availability: string;
+  sortBy: 'distance' | 'rating' | 'price' | 'reviewCount';
+  sortOrder: 'asc' | 'desc';
 }
 
 interface SkillMapSearchProps {
@@ -75,10 +79,14 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
   const [selectedProvider, setSelectedProvider] = useState<SkillProvider | null>(null);
   const [filters, setFilters] = useState<SearchFilters>({
     skill: '',
+    category: '',
     maxDistance: 10,
     minRating: 0,
     maxPrice: 5000,
-    availability: ''
+    minPrice: 0,
+    availability: '',
+    sortBy: 'distance',
+    sortOrder: 'asc'
   });
   const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
 
@@ -105,6 +113,13 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
         return false;
       }
 
+      // カテゴリフィルター
+      if (filters.category && !provider.skills.some(skill => 
+        skill.toLowerCase().includes(filters.category.toLowerCase())
+      )) {
+        return false;
+      }
+
       // 距離フィルター
       if (provider.distance && provider.distance > filters.maxDistance) {
         return false;
@@ -115,8 +130,8 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
         return false;
       }
 
-      // 価格フィルター
-      if (provider.price > filters.maxPrice) {
+      // 価格フィルター（範囲）
+      if (provider.price > filters.maxPrice || provider.price < filters.minPrice) {
         return false;
       }
 
@@ -128,8 +143,34 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
       return true;
     });
 
-    // 距離順でソート
-    filtered.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+    // ソート処理
+    filtered.sort((a, b) => {
+      let aValue: number, bValue: number;
+      
+      switch (filters.sortBy) {
+        case 'distance':
+          aValue = a.distance || 999;
+          bValue = b.distance || 999;
+          break;
+        case 'rating':
+          aValue = a.rating;
+          bValue = b.rating;
+          break;
+        case 'price':
+          aValue = a.price;
+          bValue = b.price;
+          break;
+        case 'reviewCount':
+          aValue = a.reviewCount;
+          bValue = b.reviewCount;
+          break;
+        default:
+          aValue = a.distance || 999;
+          bValue = b.distance || 999;
+      }
+
+      return filters.sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+    });
     
     setFilteredProviders(filtered);
   }, [providers, filters]);
@@ -154,6 +195,18 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
     applyFilters();
   }, [applyFilters]);
 
+  // マーカー内ボタンからのナビゲーション処理
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === 'navigate' && event.data.path) {
+        router.push(event.data.path);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [router]);
+
   // スキル詳細ページに遷移する関数
   const handleViewSkillDetail = useCallback((skillId: string) => {
     router.push(`/skills/${skillId}`);
@@ -174,7 +227,10 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
         </div>
         <p class="text-sm text-gray-600">¥${provider.price}/回</p>
         ${provider.distance ? `<p class="text-sm text-gray-500">約${provider.distance.toFixed(1)}km</p>` : ''}
-        <button onclick="if(typeof window !== 'undefined') { window.location.href='/skills/${provider.id}'; }" class="mt-2 bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
+        <button
+          onclick="window.parent.postMessage({type: 'navigate', path: '/skills/${provider.id}'}, '*')"
+          class="mt-2 bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 cursor-pointer transition-colors"
+        >
           詳細を見る
         </button>
       </div>
@@ -200,11 +256,12 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
             スキル検索・フィルター
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* 基本検索 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             {/* スキル検索 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                スキル
+                スキル検索
               </label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -212,12 +269,65 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
                   type="text"
                   value={filters.skill}
                   onChange={(e) => setFilters(prev => ({ ...prev, skill: e.target.value }))}
-                  placeholder="料理、園芸など"
+                  placeholder="料理、園芸、パソコンなど"
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
               </div>
             </div>
 
+            {/* カテゴリ選択 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                カテゴリ
+              </label>
+              <select
+                value={filters.category}
+                onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              >
+                <option value="">すべてのカテゴリ</option>
+                <option value="料理・お菓子作り">料理・お菓子作り</option>
+                <option value="園芸・ガーデニング">園芸・ガーデニング</option>
+                <option value="手芸・裁縫">手芸・裁縫</option>
+                <option value="楽器演奏">楽器演奏</option>
+                <option value="パソコン・スマホ">パソコン・スマホ</option>
+                <option value="語学">語学</option>
+                <option value="書道・絵画">書道・絵画</option>
+                <option value="健康・体操">健康・体操</option>
+                <option value="その他">その他</option>
+              </select>
+            </div>
+
+            {/* ソート */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                並び順
+              </label>
+              <div className="flex space-x-2">
+                <select
+                  value={filters.sortBy}
+                  onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as any }))}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                >
+                  <option value="distance">距離順</option>
+                  <option value="rating">評価順</option>
+                  <option value="price">価格順</option>
+                  <option value="reviewCount">レビュー数順</option>
+                </select>
+                <select
+                  value={filters.sortOrder}
+                  onChange={(e) => setFilters(prev => ({ ...prev, sortOrder: e.target.value as 'asc' | 'desc' }))}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                >
+                  <option value="asc">昇順</option>
+                  <option value="desc">降順</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* 詳細フィルター */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* 距離フィルター */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -231,6 +341,30 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
                 onChange={(e) => setFilters(prev => ({ ...prev, maxDistance: parseInt(e.target.value) }))}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
               />
+            </div>
+
+            {/* 価格範囲 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                価格範囲
+              </label>
+              <div className="flex space-x-2">
+                <input
+                  type="number"
+                  value={filters.minPrice}
+                  onChange={(e) => setFilters(prev => ({ ...prev, minPrice: parseInt(e.target.value) || 0 }))}
+                  placeholder="最低"
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500"
+                />
+                <span className="text-gray-500 self-center">〜</span>
+                <input
+                  type="number"
+                  value={filters.maxPrice}
+                  onChange={(e) => setFilters(prev => ({ ...prev, maxPrice: parseInt(e.target.value) || 5000 }))}
+                  placeholder="最高"
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500"
+                />
+              </div>
             </div>
 
             {/* 評価フィルター */}
@@ -268,10 +402,33 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
             </div>
           </div>
 
-          {/* 検索結果数 */}
-          <div className="mt-4 flex items-center text-sm text-gray-600">
-            <Users className="w-4 h-4 mr-1" />
-            {filteredProviders.length}件のスキル提供者が見つかりました
+          {/* 検索結果数とリセットボタン */}
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center text-sm text-gray-600">
+              <Users className="w-4 h-4 mr-1" />
+              {filteredProviders.length}件のスキル提供者が見つかりました
+              {providers.length !== filteredProviders.length && (
+                <span className="ml-2 text-gray-400">
+                  （全{providers.length}件中）
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => setFilters({
+                skill: '',
+                category: '',
+                maxDistance: 10,
+                minRating: 0,
+                maxPrice: 5000,
+                minPrice: 0,
+                availability: '',
+                sortBy: 'distance',
+                sortOrder: 'asc'
+              })}
+              className="text-sm text-orange-600 hover:text-orange-700 underline"
+            >
+              フィルターをリセット
+            </button>
           </div>
         </div>
       </div>
@@ -296,63 +453,117 @@ export const SkillMapSearch: React.FC<SkillMapSearchProps> = ({ className = '' }
         {/* スキル提供者リスト */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-4">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">スキル提供者</h2>
-            <div className="space-y-4 max-h-96 overflow-y-auto">
-              {filteredProviders.map(provider => (
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-800">スキル提供者</h2>
+              <div className="text-sm text-gray-500">
+                {filters.sortBy === 'distance' && '距離順'}
+                {filters.sortBy === 'rating' && '評価順'}
+                {filters.sortBy === 'price' && '価格順'}
+                {filters.sortBy === 'reviewCount' && 'レビュー数順'}
+                {filters.sortOrder === 'desc' && ' (高い順)'}
+                {filters.sortOrder === 'asc' && ' (低い順)'}
+              </div>
+            </div>
+            <div className="space-y-4 max-h-[600px] overflow-y-auto">
+              {filteredProviders.map((provider, index) => (
                 <div
                   key={provider.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                  className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
                     selectedProvider?.id === provider.id
-                      ? 'border-orange-500 bg-orange-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-orange-500 bg-orange-50 shadow-md'
+                      : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                   }`}
                   onClick={() => setSelectedProvider(provider)}
                 >
+                  {/* ランキング表示 */}
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-gray-800">{provider.name}</h3>
-                    <div className="flex items-center text-sm text-yellow-600">
-                      <Star className="w-4 h-4 mr-1 fill-current" />
-                      {provider.rating}
+                    <div className="flex items-center space-x-2">
+                      <span className="inline-flex items-center justify-center w-6 h-6 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">
+                        {index + 1}
+                      </span>
+                      <h3 className="font-semibold text-gray-800">{provider.name}</h3>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <Star className="w-4 h-4 mr-1 fill-current text-yellow-500" />
+                      <span className="font-medium text-gray-700">{provider.rating}</span>
+                      <span className="text-gray-500 ml-1">({provider.reviewCount})</span>
                     </div>
                   </div>
                   
-                  <p className="text-sm text-gray-600 mb-2">
-                    {provider.skills.join(', ')}
-                  </p>
-                  
-                  <div className="flex items-center text-sm text-gray-500 mb-1">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {provider.distance ? `約${provider.distance.toFixed(1)}km` : '距離不明'}
+                  {/* スキルタグ */}
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {provider.skills.slice(0, 3).map((skill, skillIndex) => (
+                      <span
+                        key={skillIndex}
+                        className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                    {provider.skills.length > 3 && (
+                      <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                        +{provider.skills.length - 3}
+                      </span>
+                    )}
                   </div>
                   
-                  <div className="flex items-center text-sm text-gray-500 mb-2">
-                    <Clock className="w-4 h-4 mr-1" />
-                    {provider.availability.join(', ')}
+                  {/* 詳細情報 */}
+                  <div className="space-y-1 mb-3">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+                      <span>{provider.location.address}</span>
+                      {provider.distance && (
+                        <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">
+                          {provider.distance.toFixed(1)}km
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Clock className="w-4 h-4 mr-2 text-gray-400" />
+                      <span>{provider.availability.slice(0, 2).join(', ')}</span>
+                      {provider.availability.length > 2 && (
+                        <span className="ml-1 text-gray-400">など</span>
+                      )}
+                    </div>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-orange-600">
-                      ¥{provider.price}/回
-                    </span>
+                  {/* 価格と詳細ボタン */}
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg font-bold text-orange-600">
+                        ¥{provider.price.toLocaleString()}
+                      </span>
+                      <span className="text-sm text-gray-500">/回</span>
+                    </div>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleViewSkillDetail(provider.id);
                       }}
-                      className="text-sm text-orange-600 hover:text-orange-700 flex items-center space-x-1"
+                      className="inline-flex items-center px-3 py-1 text-sm bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
                     >
-                      <span>詳細を見る</span>
-                      <ExternalLink className="w-3 h-3" />
+                      <span>詳細</span>
+                      <ExternalLink className="w-3 h-3 ml-1" />
                     </button>
                   </div>
                 </div>
               ))}
               
               {filteredProviders.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                  <p>条件に合うスキル提供者が見つかりませんでした</p>
-                  <p className="text-sm mt-1">検索条件を変更してお試しください</p>
+                <div className="text-center py-12 text-gray-500">
+                  <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-medium text-gray-700 mb-2">
+                    条件に合うスキル提供者が見つかりませんでした
+                  </h3>
+                  <p className="text-sm mb-4">
+                    検索条件を変更してお試しください
+                  </p>
+                  <div className="text-xs text-gray-400 space-y-1">
+                    <p>• スキル名を変更してみる</p>
+                    <p>• 距離を広げてみる</p>
+                    <p>• 価格範囲を調整してみる</p>
+                  </div>
                 </div>
               )}
             </div>
