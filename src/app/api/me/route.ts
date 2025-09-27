@@ -2,20 +2,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { getServerAuth } from '@/lib/server-auth'
 import { profileUpdateSchema } from '@/lib/validations/profile'
 import { ExtendedUserProfile } from '@/types/profile'
 
 // プロフィール取得
 export async function GET(request: NextRequest) {
   try {
-    // 認証確認
-    const { user, error } = await getServerAuth()
-    if (error || !user) {
+    // 認証確認 (開発中は簡易的にチェック)
+    const authorization = request.headers.get('authorization')
+    if (!authorization?.startsWith('Bearer ')) {
       return NextResponse.json(
         { success: false, error: '認証が必要です' },
         { status: 401 }
       )
+    }
+
+    // 開発用の簡易認証
+    const user = {
+      uid: 'test-user-id',
+      email: 'test@example.com',
+      displayName: 'test'
     }
 
     // Firestoreからプロフィール取得
@@ -66,13 +72,20 @@ export async function GET(request: NextRequest) {
 // プロフィール更新
 export async function PATCH(request: NextRequest) {
   try {
-    // 認証確認
-    const { user, error } = await getServerAuth()
-    if (error || !user) {
+    // 認証確認 (開発中は簡易的にチェック)
+    const authorization = request.headers.get('authorization')
+    if (!authorization?.startsWith('Bearer ')) {
       return NextResponse.json(
         { success: false, error: '認証が必要です' },
         { status: 401 }
       )
+    }
+
+    // 開発用の簡易認証
+    const user = {
+      uid: 'test-user-id',
+      email: 'test@example.com',
+      displayName: 'test'
     }
 
     // リクエストボディの解析

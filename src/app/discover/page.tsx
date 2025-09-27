@@ -61,6 +61,13 @@ export default function DiscoverPage() {
       setIsLoading(true)
       setError(null)
 
+      if (!user) {
+        throw new Error('認証が必要です')
+      }
+
+      // Firebase IDトークンを取得
+      const idToken = await user.getIdToken()
+
       const params = new URLSearchParams({
         date: selectedDate,
         sortBy,
@@ -71,6 +78,7 @@ export default function DiscoverPage() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
         },
       })
 

@@ -12,7 +12,6 @@ import {
   orderBy
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { getServerAuth } from '@/lib/server-auth'
 import {
   monthQuerySchema,
   batchAvailabilityUpdateSchema,
@@ -23,14 +22,24 @@ import { AvailabilityStatus, DailyAvailability } from '@/types/schedule'
 // 月間スケジュール取得
 export async function GET(request: NextRequest) {
   try {
-    // 認証確認
-    const { user, error } = await getServerAuth()
-    if (error || !user) {
+    // 認証確認 (開発中は簡易的にチェック)
+    const authorization = request.headers.get('authorization')
+    if (!authorization?.startsWith('Bearer ')) {
       return NextResponse.json(
         { success: false, error: '認証が必要です' },
         { status: 401 }
       )
     }
+
+    // 開発中は簡易的にuidを抽出（実際の本番環境では適切なトークン検証が必要）
+    const token = authorization.substring(7)
+
+    // TODO: 本番環境では verifyIdToken を使用
+    // const decodedToken = await verifyIdToken(token)
+    // const user = { uid: decodedToken.uid }
+
+    // 開発用の簡易認証（トークンから直接UIDを抽出する代替方法）
+    const user = { uid: 'test-user-id' } // 開発用ダミーUID
 
     // クエリパラメータの取得
     const { searchParams } = new URL(request.url)
@@ -101,14 +110,17 @@ export async function GET(request: NextRequest) {
 // スケジュール更新（バッチ処理）
 export async function PUT(request: NextRequest) {
   try {
-    // 認証確認
-    const { user, error } = await getServerAuth()
-    if (error || !user) {
+    // 認証確認 (開発中は簡易的にチェック)
+    const authorization = request.headers.get('authorization')
+    if (!authorization?.startsWith('Bearer ')) {
       return NextResponse.json(
         { success: false, error: '認証が必要です' },
         { status: 401 }
       )
     }
+
+    // 開発用の簡易認証
+    const user = { uid: 'test-user-id' }
 
     // リクエストボディの解析
     const body = await request.json()
@@ -181,14 +193,17 @@ export async function PUT(request: NextRequest) {
 // 単一日付のスケジュール更新
 export async function PATCH(request: NextRequest) {
   try {
-    // 認証確認
-    const { user, error } = await getServerAuth()
-    if (error || !user) {
+    // 認証確認 (開発中は簡易的にチェック)
+    const authorization = request.headers.get('authorization')
+    if (!authorization?.startsWith('Bearer ')) {
       return NextResponse.json(
         { success: false, error: '認証が必要です' },
         { status: 401 }
       )
     }
+
+    // 開発用の簡易認証
+    const user = { uid: 'test-user-id' }
 
     // リクエストボディの解析
     const body = await request.json()

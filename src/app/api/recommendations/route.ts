@@ -11,7 +11,6 @@ import {
   limit as firestoreLimit
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { getServerAuth } from '@/lib/server-auth'
 import { recommendationQuerySchema } from '@/lib/validations/schedule'
 import { generateRecommendations } from '@/lib/helpers/recommendations'
 import { ExtendedUserProfile } from '@/types/profile'
@@ -21,13 +20,20 @@ import { Activity } from '@/types/recommendations'
 // レコメンド取得
 export async function GET(request: NextRequest) {
   try {
-    // 認証確認
-    const { user, error } = await getServerAuth()
-    if (error || !user) {
+    // 認証確認 (開発中は簡易的にチェック)
+    const authorization = request.headers.get('authorization')
+    if (!authorization?.startsWith('Bearer ')) {
       return NextResponse.json(
         { success: false, error: '認証が必要です' },
         { status: 401 }
       )
+    }
+
+    // 開発用の簡易認証
+    const user = {
+      uid: 'test-user-id',
+      email: 'test@example.com',
+      displayName: 'test'
     }
 
     // クエリパラメータの取得

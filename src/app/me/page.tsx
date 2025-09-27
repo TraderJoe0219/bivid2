@@ -33,10 +33,19 @@ export default function MyProfilePage() {
   const fetchProfile = async () => {
     try {
       setIsLoading(true)
+
+      if (!user) {
+        throw new Error('認証が必要です')
+      }
+
+      // Firebase IDトークンを取得
+      const idToken = await user.getIdToken()
+
       const response = await fetch('/api/me', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
         },
       })
 
@@ -64,10 +73,18 @@ export default function MyProfilePage() {
       setIsSaving(true)
       setError(null)
 
+      if (!user) {
+        throw new Error('認証が必要です')
+      }
+
+      // Firebase IDトークンを取得
+      const idToken = await user.getIdToken()
+
       const response = await fetch('/api/me', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
         },
         body: JSON.stringify(data),
       })
