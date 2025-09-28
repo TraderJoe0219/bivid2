@@ -1,8 +1,10 @@
-import { 
-  createUserWithEmailAndPassword, 
+import {
+  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   updateProfile,
   User,
@@ -101,8 +103,24 @@ export async function signInWithEmail(
 export async function signInWithGoogle(): Promise<AuthResult> {
   try {
     console.log('Googleログインを開始')
-    
+    console.log('環境情報:', {
+      nodeEnv: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV || 'not-vercel',
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      currentURL: typeof window !== 'undefined' ? window.location.href : 'server-side'
+    })
+
     const provider = new GoogleAuthProvider()
+
+    // Vercel環境でのポップアップ設定最適化
+    if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+      console.log('Vercel環境を検出 - ポップアップ設定を最適化')
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      })
+    }
+
     const userCredential = await signInWithPopup(auth, provider)
     const user = userCredential.user
     console.log('Google Auth 成功:', user.uid)
@@ -132,12 +150,14 @@ export async function signInWithGoogle(): Promise<AuthResult> {
       message: error.message,
       stack: error.stack
     })
-    
+
     let errorMessage = 'Googleログインに失敗しました。'
     if (error.code === 'auth/popup-closed-by-user') {
       errorMessage = 'ログインがキャンセルされました。'
     } else if (error.code === 'auth/popup-blocked') {
-      errorMessage = 'ポップアップがブロックされました。ブラウザの設定を確認してください。'
+      errorMessage = 'ポップアップがブロックされました。リダイレクト方式を試します。'
+      // ポップアップがブロックされた場合、リダイレクト方式にフォールバック
+      return await signInWithGoogleRedirect()
     } else if (error.code === 'auth/invalid-api-key') {
       errorMessage = 'Firebase設定エラー: APIキーが無効です。'
     } else if (error.code === 'auth/network-request-failed') {
@@ -145,8 +165,64 @@ export async function signInWithGoogle(): Promise<AuthResult> {
     } else {
       errorMessage = `Googleログインエラー: ${error.message}`
     }
-    
+
     return { user: null, error: errorMessage }
+  }
+}
+
+// リダイレクト方式のGoogle認証（ポップアップの代替）
+export async function signInWithGoogleRedirect(): Promise<AuthResult> {
+  try {
+    console.log('Googleリダイレクトログインを開始')
+
+    const provider = new GoogleAuthProvider()
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    })
+
+    await signInWithRedirect(auth, provider)
+
+    // リダイレクト実行後は結果を別途処理する必要がある
+    return { user: null, error: 'redirect_in_progress' }
+  } catch (error: any) {
+    console.error('Google redirect sign in error:', error)
+    return { user: null, error: 'リダイレクトログインに失敗しました。' }
+  }
+}
+
+// リダイレクト結果の処理
+export async function handleGoogleRedirectResult(): Promise<AuthResult> {
+  try {
+    const result = await getRedirectResult(auth)
+
+    if (!result) {
+      return { user: null, error: null } // リダイレクトが発生していない
+    }
+
+    const user = result.user
+    console.log('Google Redirect Auth 成功:', user.uid)
+
+    // Firestoreにユーザー情報が存在するかチェック
+    const userDoc = await getDoc(doc(db, 'users', user.uid))
+
+    if (!userDoc.exists()) {
+      console.log('新規Googleユーザー - Firestoreに保存')
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+    } else {
+      console.log('既存Googleユーザー')
+    }
+
+    return { user, error: null }
+  } catch (error: any) {
+    console.error('Google redirect result error:', error)
+    return { user: null, error: 'リダイレクト結果の処理に失敗しました。' }
   }
 }
 

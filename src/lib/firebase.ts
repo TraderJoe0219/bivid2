@@ -64,14 +64,25 @@ const getFirebaseConfig = () => {
       apiKey: config.apiKey ? (config.apiKey.includes('Demo') ? '[DEMOキー - 実際のキーが必要]' : '[設定済み]') : '[未設定]'
     })
 
-    const hasValidConfig = config.apiKey && 
-      config.authDomain && 
-      config.projectId && 
+    const hasValidConfig = config.apiKey &&
+      config.authDomain &&
+      config.projectId &&
       !config.apiKey.includes('Demo')
 
     if (!hasValidConfig) {
       console.warn('⚠️ Firebase設定が不完全です。.env.localファイルを確認してください。')
     }
+  }
+
+  // Vercel環境での診断情報
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+    console.log('🔥 Vercel Firebase診断:', {
+      currentDomain: window.location.hostname,
+      authDomain: config.authDomain,
+      projectId: config.projectId,
+      hasApiKey: !!config.apiKey,
+      isVercel: window.location.hostname.includes('vercel.app')
+    })
   }
 
   return config

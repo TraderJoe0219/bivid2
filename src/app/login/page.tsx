@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { signInWithEmail, signInWithGoogle } from '@/lib/auth'
+import { signInWithEmail, signInWithGoogle, handleGoogleRedirectResult } from '@/lib/auth'
 import { useAuthStore } from '@/store/authStore'
 import { AuthForm, AuthFormData } from '@/components/auth/AuthForm'
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton'
@@ -16,6 +16,22 @@ export default function LoginPage() {
   const [showPasswordReset, setShowPasswordReset] = useState(false)
   const router = useRouter()
   const { user } = useAuthStore()
+
+  // Googleリダイレクト結果の処理
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      const { user: redirectUser, error: redirectError } = await handleGoogleRedirectResult()
+
+      if (redirectUser) {
+        console.log('リダイレクト認証成功:', redirectUser.uid)
+        router.push('/')
+      } else if (redirectError) {
+        console.log('リダイレクト結果:', redirectError)
+      }
+    }
+
+    handleRedirectResult()
+  }, [router])
 
   // 既にログイン済みの場合はホームにリダイレクト
   if (user) {
@@ -40,8 +56,19 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setError('')
+    setLoading(true)
+
     const { user, error: loginError } = await signInWithGoogle()
-    
+
+    if (loginError === 'redirect_in_progress') {
+      // リダイレクトが実行された場合は何もしない
+      console.log('リダイレクト認証を実行中...')
+      setLoading(false)
+      return
+    }
+
+    setLoading(false)
+
     if (loginError) {
       setError(loginError)
     } else if (user) {
