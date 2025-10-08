@@ -112,8 +112,7 @@ export const runtime = 'nodejs'
 
 export async function GET(request: NextRequest) {
   try {
-    const url = new URL(request.url)
-    const searchParams = url.searchParams
+    const { searchParams } = request.nextUrl
     
     // パラメータの解析
     const rawParams = {

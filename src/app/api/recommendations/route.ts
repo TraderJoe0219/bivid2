@@ -17,19 +17,12 @@ import { ExtendedUserProfile } from '@/types/profile'
 import { AvailabilityStatus } from '@/types/schedule'
 import { Activity } from '@/types/recommendations'
 
-// レコメンド取得
+// レコメンド取得の動的設定
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
-    // 認証確認 (開発中は簡易的にチェック)
-    const authorization = request.headers.get('authorization')
-    if (!authorization?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { success: false, error: '認証が必要です' },
-        { status: 401 }
-      )
-    }
-
-    // 開発用の簡易認証
+    // 開発用の簡易認証（ヘッダーチェックをスキップ）
     const user = {
       uid: 'test-user-id',
       email: 'test@example.com',
@@ -37,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // クエリパラメータの取得
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = request.nextUrl
     const date = searchParams.get('date')
     const sortBy = searchParams.get('sortBy')
     const limitParam = searchParams.get('limit')
