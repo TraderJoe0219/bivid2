@@ -7,29 +7,42 @@ import { PhoneVerification } from '@/components/auth/PhoneVerification'
 import { Loading } from '@/components/Loading'
 import type { PhoneVerificationFormData } from '@/lib/validations/auth'
 
+// useSearchParamsを使用するコンポーネントは別途定義
+function SearchParamsHandler({
+  onParamsLoaded
+}: {
+  onParamsLoaded: (phone: string | null, step: string | null) => void
+}) {
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const phoneParam = searchParams.get('phone')
+    const stepParam = searchParams.get('step')
+    onParamsLoaded(phoneParam, stepParam)
+  }, [searchParams, onParamsLoaded])
+
+  return null
+}
+
 function VerifyPageContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [step, setStep] = useState<'phone' | 'verification'>('phone')
   const [phoneNumber, setPhoneNumber] = useState('')
-  
+
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { user } = useAuthStore()
 
-  // URLパラメータから初期値を設定
-  useEffect(() => {
-    const phoneParam = searchParams.get('phone')
-    const stepParam = searchParams.get('step')
-    
+  // URLパラメータから初期値を設定するハンドラー
+  const handleParamsLoaded = (phoneParam: string | null, stepParam: string | null) => {
     if (phoneParam) {
       setPhoneNumber(phoneParam)
     }
     if (stepParam === 'verification') {
       setStep('verification')
     }
-  }, [searchParams])
+  }
 
   // 未ログインユーザーはログインページへリダイレクト
   if (!user) {
@@ -116,6 +129,11 @@ function VerifyPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* URLパラメータを読み込むSuspense境界内のコンポーネント */}
+      <Suspense fallback={null}>
+        <SearchParamsHandler onParamsLoaded={handleParamsLoaded} />
+      </Suspense>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-2xl">
         {/* ヘッダー */}
         <div className="text-center mb-8">
@@ -181,9 +199,5 @@ function VerifyPageContent() {
 }
 
 export default function VerifyPage() {
-  return (
-    <Suspense fallback={<Loading />}>
-      <VerifyPageContent />
-    </Suspense>
-  )
+  return <VerifyPageContent />
 }
