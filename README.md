@@ -153,11 +153,21 @@ src/
 
 ### Vercel へのデプロイ
 
-1. Vercelアカウントを作成
-2. GitHubリポジトリを連携
-3. 環境変数を設定
-4. 自動デプロイを有効化
+⚠️ **重要**: Vercelデプロイ時はFirebase環境変数の設定が必要です。
 
+#### クイックスタート
+Firebase APIキーエラーが出た場合: [QUICK_VERCEL_FIX.md](./QUICK_VERCEL_FIX.md) を参照
+
+#### 詳細な設定手順
+初めてデプロイする場合: [VERCEL_SETUP_GUIDE.md](./VERCEL_SETUP_GUIDE.md) を参照
+
+#### デプロイ確認
+デプロイ後、以下のURLで環境変数が正しく設定されているか確認できます：
+```
+https://your-vercel-url.vercel.app/api/deploy-check
+```
+
+#### ローカルビルド確認
 ```bash
 npm run build
 npm run start
